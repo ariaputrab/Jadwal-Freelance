@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Raihan Aria - Freelance Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .touch-scroll::-webkit-scrollbar { width: 4px; }
+        .touch-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen pb-12 pt-4 px-3 sm:py-8 sm:px-6">
+    <div class="max-w-5xl mx-auto space-y-6">
+        
+        <!-- Header & Navigasi Utama -->
+        <header class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center text-base shadow-sm">
+                        <i class="fa-solid fa-calendar-check"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-base font-bold text-slate-900 leading-tight">Freelance Planner</h1>
+                        <p class="text-xs text-slate-500">Raihan Aria • Jadwal & Keuangan</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Switcher Menu -->
+            <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 w-full sm:w-auto overflow-x-auto touch-scroll">
+                <button id="tabHomeBtn" onclick="switchMode('home')" class="flex-1 sm:flex-none py-2 px-3 bg-white text-slate-900 font-bold text-xs rounded-lg shadow-sm transition flex items-center justify-center gap-1.5 whitespace-nowrap">
+                    <i class="fa-solid fa-house text-[11px]"></i> Home
+                </button>
+                <button id="tabListBtn" onclick="switchMode('list')" class="flex-1 sm:flex-none py-2 px-3 text-slate-600 hover:text-slate-900 font-bold text-xs rounded-lg transition flex items-center justify-center gap-1.5 whitespace-nowrap">
+                    <i class="fa-solid fa-table-list text-[11px]"></i> Daftar Job
+                </button>
+                <button id="tabCalendarBtn" onclick="switchMode('calendar')" class="flex-1 sm:flex-none py-2 px-3 text-slate-600 hover:text-slate-900 font-bold text-xs rounded-lg transition flex items-center justify-center gap-1.5 whitespace-nowrap">
+                    <i class="fa-solid fa-calendar-days text-[11px]"></i> Kalender
+                </button>
+                <button id="tabNewBtn" onclick="switchMode('new')" class="flex-1 sm:flex-none py-2 px-3 text-slate-600 hover:text-slate-900 font-bold text-xs rounded-lg transition flex items-center justify-center gap-1.5 whitespace-nowrap">
+                    <i class="fa-solid fa-plus text-[11px]"></i> Tambah Job
+                </button>
+            </div>
+        </header>
+
+        <!-- HALAMAN 1: HOME / DASHBOARD -->
+        <div id="sectionHome" class="space-y-5">
+            <div class="bg-gradient-to-r from-slate-900 to-slate-800 text-white p-6 rounded-2xl shadow-sm space-y-2">
+                <h2 class="text-lg font-bold">Halo, Raihan Aria! 👋</h2>
+                <p class="text-xs text-slate-300">Berikut adalah ringkasan jadwal freelance dan rekap pendapatan kamu.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-1">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Job Tersimpan</span>
+                    <span id="statTotalJob" class="text-2xl font-bold text-slate-900">0</span>
+                    <span class="text-[10px] text-slate-500 block">Wedding, Wisuda, Lamaran, dll</span>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-emerald-200 bg-emerald-50/30 shadow-sm space-y-1">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Total Fee / Pendapatan</span>
+                    <span id="statTotalFee" class="text-xl font-bold text-emerald-800">Rp0</span>
+                    <span class="text-[10px] text-emerald-600 block">Akumulasi seluruh job</span>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                <h3 class="font-bold text-slate-900 text-xs uppercase tracking-wider">Aksi Cepat</h3>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="switchMode('new')" class="p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition flex flex-col items-center text-center gap-1.5 group">
+                        <div class="w-9 h-9 bg-slate-900 text-white rounded-xl flex items-center justify-center text-sm shadow group-hover:scale-105 transition">
+                            <i class="fa-solid fa-plus"></i>
+                        </div>
+                        <span class="font-bold text-xs text-slate-800">Catat Job</span>
+                    </button>
+                    <button onclick="switchMode('list')" class="p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition flex flex-col items-center text-center gap-1.5 group">
+                        <div class="w-9 h-9 bg-emerald-600 text-white rounded-xl flex items-center justify-center text-sm shadow group-hover:scale-105 transition">
+                            <i class="fa-solid fa-table-list"></i>
+                        </div>
+                        <span class="font-bold text-xs text-slate-800">Lihat Tabel</span>
+                    </button>
+                    <button onclick="switchMode('calendar')" class="p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition flex flex-col items-center text-center gap-1.5 group">
+                        <div class="w-9 h-9 bg-blue-600 text-white rounded-xl flex items-center justify-center text-sm shadow group-hover:scale-105 transition">
+                            <i class="fa-solid fa-calendar-days"></i>
+                        </div>
+                        <span class="font-bold text-xs text-slate-800">Kalender</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- HALAMAN 2: DAFTAR JOB (TABEL) -->
+        <div id="sectionList" class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 hidden">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <div>
+                    <h3 class="text-sm font-bold text-slate-900"><i class="fa-solid fa-table-list text-emerald-600 mr-1.5"></i> Riwayat Daftar Job Freelance</h3>
+                    <p class="text-[11px] text-slate-500">Semua jadwal yang tersimpan di Google Sheets.</p>
+                </div>
+                <button onclick="loadFreelanceJobs()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-1.5 rounded-xl transition">
+                    <i class="fa-solid fa-arrows-rotate mr-1"></i> Refresh
+                </button>
+            </div>
+
+            <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
+                <div class="overflow-x-auto touch-scroll">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 text-[10px] uppercase font-bold tracking-wider">
+                            <tr>
+                                <th class="py-3 px-4">Tanggal & Jam</th>
+                                <th class="py-3 px-3">Tipe Job</th>
+                                <th class="py-3 px-3">Vendor</th>
+                                <th class="py-3 px-3">Lokasi</th>
+                                <th class="py-3 px-3 text-right">Fee (Rp)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="freelanceTableBody" class="divide-y divide-slate-100 text-xs text-slate-700 bg-white">
+                            <tr>
+                                <td colspan="5" class="p-6 text-center text-slate-400 italic">Belum ada riwayat job tersimpan di sesi ini.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- HALAMAN 3: KALENDER INTERAKTIF -->
+        <div id="sectionCalendar" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4 hidden">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <div class="flex items-center gap-3">
+                    <button onclick="changeMonth(-1)" class="w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-xl flex items-center justify-center transition text-slate-700">
+                        <i class="fa-solid fa-chevron-left text-xs"></i>
+                    </button>
+                    <h2 id="calendarTitle" class="text-sm font-bold text-slate-900">November 2026</h2>
+                    <button onclick="changeMonth(1)" class="w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-xl flex items-center justify-center transition text-slate-700">
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                </div>
+                <button onclick="goToCurrentMonth()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-1.5 rounded-xl transition">
+                    Bulan Ini
+                </button>
+            </div>
+
+            <div class="grid grid-cols-7 gap-1 text-center font-bold text-[10px] text-slate-400 uppercase py-1">
+                <div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div><div>Min</div>
+            </div>
+            <div id="calendarGrid" class="grid grid-cols-7 gap-1.5 sm:gap-2"></div>
+        </div>
+
+        <!-- HALAMAN 4: TAMBAH JOB BARU -->
+        <div id="sectionNew" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm max-w-xl mx-auto space-y-4 hidden">
+            <div class="border-b border-slate-100 pb-3">
+                <h3 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-plus text-blue-600"></i> Tambah Jadwal Freelance Baru
+                </h3>
+                <p class="text-xs text-slate-500 mt-0.5">Data akan otomatis masuk ke Google Sheets & Google Calendar.</p>
+            </div>
+            
+            <div class="space-y-3 text-xs">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase">Tanggal Acara</label>
+                        <input type="date" id="freeTanggal" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold outline-none mt-1 cursor-pointer">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase">Jam Sesi / Acara</label>
+                        <input type="text" id="freeJam" placeholder="Contoh: 13:00 - 15:00" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-blue-700 outline-none mt-1">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Tipe Job</label>
+                    <input type="text" id="freeTipe" placeholder="Misal: Wisuda / Wedding / Lamaran" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold outline-none mt-1">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Vendor</label>
+                    <input type="text" id="freeVendor" placeholder="Nama Vendor Organizer atau Klien" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold outline-none mt-1">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Lokasi Acara</label>
+                    <input type="text" id="freeLokasi" placeholder="Nama Gedung / Kota" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold outline-none mt-1">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Fee (Rp)</label>
+                    <input type="number" id="freeFee" placeholder="Contoh: 1500000" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold outline-none mt-1">
+                </div>
+
+                <button onclick="submitFreelanceJob()" id="btnSave" class="w-full py-3.5 bg-slate-900 hover:bg-black text-white font-bold text-xs rounded-xl shadow transition active:scale-[0.99]">
+                    Simpan ke Sheets & GCal
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Toast Alert -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2.5 transition-all duration-300 translate-y-20 opacity-0 pointer-events-none text-xs font-semibold z-50">
+        <i class="fa-solid fa-check text-emerald-400"></i>
+        <span id="toastMsg">Berhasil!</span>
+    </div>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbymxf1pIrMhVi77zHolsSVW9gsFLni-xs2kX5zTkbDF-OYX-Jwrb6pqD18g7Vu0kyPw/exec";
+        
+        let currentDate = new Date();
+        let freelanceJobs = [];
+
+        function switchMode(mode) {
+            const isHome = mode === 'home';
+            const isList = mode === 'list';
+            const isCalendar = mode === 'calendar';
+            const isNew = mode === 'new';
+
+            document.getElementById('sectionHome').classList.toggle('hidden', !isHome);
+            document.getElementById('sectionList').classList.toggle('hidden', !isList);
+            document.getElementById('sectionCalendar').classList.toggle('hidden', !isCalendar);
+            document.getElementById('sectionNew').classList.toggle('hidden', !isNew);
+
+            document.getElementById('tabHomeBtn').className = isHome ? getActiveTab() : getInactiveTab();
+            document.getElementById('tabListBtn').className = isList ? getActiveTab() : getInactiveTab();
+            document.getElementById('tabCalendarBtn').className = isCalendar ? getActiveTab() : getInactiveTab();
+            document.getElementById('tabNewBtn').className = isNew ? getActiveTab() : getInactiveTab();
+
+            if (isCalendar) renderCalendar();
+            if (isList) loadFreelanceJobs();
+        }
+
+        function getActiveTab() {
+            return "flex-1 sm:flex-none py-2 px-3 bg-white text-slate-900 font-bold text-xs rounded-lg shadow-sm transition flex items-center justify-center gap-1.5 whitespace-nowrap";
+        }
+        function getInactiveTab() {
+            return "flex-1 sm:flex-none py-2 px-3 text-slate-600 hover:text-slate-900 font-bold text-xs rounded-lg transition flex items-center justify-center gap-1.5 whitespace-nowrap";
+        }
+
+        function formatRupiah(num) {
+            return 'Rp' + Number(num || 0).toLocaleString('id-ID');
+        }
+
+        async function loadFreelanceJobs() {
+            const tbody = document.getElementById('freelanceTableBody');
+            
+            if (freelanceJobs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 italic">Belum ada riwayat job tersimpan di sesi ini.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = freelanceJobs.map(j => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="py-3 px-4">
+                        <span class="font-semibold text-slate-800 block">${j.tanggal}</span>
+                        <span class="text-[11px] font-mono text-blue-700">${j.jam} WIB</span>
+                    </td>
+                    <td class="py-3 px-3 font-bold text-blue-700">${j.tipeJob}</td>
+                    <td class="py-3 px-3 text-slate-700">${j.vendor}</td>
+                    <td class="py-3 px-3 text-slate-500">${j.lokasi}</td>
+                    <td class="py-3 px-3 text-right font-bold text-emerald-700">${formatRupiah(j.fee)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function updateHomeStats() {
+            document.getElementById('statTotalJob').textContent = freelanceJobs.length;
+            const totalFee = freelanceJobs.reduce((sum, j) => sum + (parseInt(j.fee) || 0), 0);
+            document.getElementById('statTotalFee').textContent = formatRupiah(totalFee);
+        }
+
+        function changeMonth(dir) {
+            currentDate.setMonth(currentDate.getMonth() + dir);
+            renderCalendar();
+        }
+
+        function goToCurrentMonth() {
+            currentDate = new Date();
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            const title = document.getElementById('calendarTitle');
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+
+            const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            title.textContent = `${monthNames[month]} ${year}`;
+
+            const firstDayIndex = new Date(year, month, 1).getDay();
+            const startDay = (firstDayIndex === 0) ? 6 : firstDayIndex - 1;
+            const totalDays = new Date(year, month + 1, 0).getDate();
+            const prevTotalDays = new Date(year, month, 0).getDate();
+
+            const now = new Date();
+            const todayISO = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+
+            let html = '';
+
+            for (let i = startDay - 1; i >= 0; i--) {
+                const dayNum = prevTotalDays - i;
+                html += `<div class="h-24 bg-slate-50/50 rounded-xl p-1.5 border border-slate-100 opacity-40 text-slate-400 text-xs">${dayNum}</div>`;
+            }
+
+            for (let d = 1; d <= totalDays; d++) {
+                const dStr = String(d).padStart(2, '0');
+                const mStr = String(month + 1).padStart(2, '0');
+                const dateISO = `${year}-${mStr}-${dStr}`;
+                const isToday = (dateISO === todayISO);
+
+                const matchedJobs = freelanceJobs.filter(j => j.isoDate === dateISO);
+                let jobsBadge = matchedJobs.map(j => `
+                    <div class="text-[9px] bg-blue-50 border border-blue-200 text-blue-800 font-bold p-1 rounded mb-1 truncate">
+                        <span class="block text-blue-900">${j.jam}</span>
+                        <span class="truncate">${j.tipeJob}</span>
+                    </div>
+                `).join('');
+
+                html += `
+                    <div class="h-24 bg-white rounded-xl p-1.5 border ${isToday ? 'border-blue-500 ring-2 ring-blue-100' : 'border-slate-200'} shadow-xs flex flex-col justify-between overflow-hidden">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold ${isToday ? 'bg-blue-600 text-white w-5 h-5 rounded-full flex items-center justify-center' : 'text-slate-700'}">${d}</span>
+                        </div>
+                        <div class="space-y-0.5 overflow-y-auto touch-scroll flex-1 mt-1">
+                            ${jobsBadge}
+                        </div>
+                    </div>
+                `;
+            }
+
+            grid.innerHTML = html;
+        }
+
+        async function submitFreelanceJob() {
+            const tanggal = document.getElementById('freeTanggal').value;
+            const jam = document.getElementById('freeJam').value.trim() || '08:00 - Selesai';
+            const tipeJob = document.getElementById('freeTipe').value.trim();
+            const vendor = document.getElementById('freeVendor').value.trim();
+            const lokasi = document.getElementById('freeLokasi').value.trim();
+            const fee = document.getElementById('freeFee').value.trim();
+
+            if (!tanggal || !tipeJob || !vendor) {
+                return alert('Tanggal, Tipe Job, dan Vendor wajib diisi!');
+            }
+
+            const btn = document.getElementById('btnSave');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+
+            const parts = tanggal.split('-');
+            const monthNamesShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const formattedDate = `${parseInt(parts[2], 10)}-${monthNamesShort[parseInt(parts[1], 10)-1]}-${parts[0]}`;
+
+            freelanceJobs.push({
+                tanggal: formattedDate,
+                isoDate: tanggal,
+                jam,
+                tipeJob,
+                vendor,
+                lokasi: lokasi || '-',
+                fee: fee || 0
+            });
+
+            updateHomeStats();
+
+            const payload = {
+                action: "new_freelance_job",
+                tanggal: formattedDate,
+                isoDate: tanggal,
+                jam: jam,
+                tipeJob: tipeJob,
+                vendor: vendor,
+                lokasi: lokasi || '-',
+                fee: fee || 0
+            };
+
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                showToast("Job freelance berhasil disimpan ke Sheets & Kalender!");
+                document.getElementById('freeJam').value = '';
+                document.getElementById('freeTipe').value = '';
+                document.getElementById('freeVendor').value = '';
+                document.getElementById('freeLokasi').value = '';
+                document.getElementById('freeFee').value = '';
+                switchMode('home');
+            } catch (err) {
+                alert('Gagal menyimpan: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Simpan ke Sheets & GCal';
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => { toast.classList.add('translate-y-20', 'opacity-0'); }, 3000);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            updateHomeStats();
+            renderCalendar();
+        });
+    </script>
+</body>
+</html>
