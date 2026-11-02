@@ -398,8 +398,13 @@
             const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
             title.textContent = `${monthNames[month]} ${year}`;
 
+            // Ambil hari apa tanggal 1 di bulan ini (0 = Minggu, 1 = Senin, ..., 6 = Sabtu)
             const firstDayIndex = new Date(year, month, 1).getDay();
+            
+            // Karena header kita mulai dari Senin (Sen, Sel, Rab, Kam, Jum, Sab, Min)
+            // Ubah Minggu (0) menjadi 6, dan hari lainnya dikurangi 1
             const startDay = (firstDayIndex === 0) ? 6 : firstDayIndex - 1;
+            
             const totalDays = new Date(year, month + 1, 0).getDate();
             const prevTotalDays = new Date(year, month, 0).getDate();
 
@@ -408,43 +413,50 @@
 
             let html = '';
 
-            // Tanggal abu-abu dari bulan sebelumnya
+            // Kotak tanggal abu-abu dari bulan sebelumnya
             for (let i = startDay - 1; i >= 0; i--) {
                 const dayNum = prevTotalDays - i;
-                html += `<div class="h-28 bg-slate-50/40 rounded-xl p-1.5 border border-slate-100 opacity-30 text-slate-400 text-xs">${dayNum}</div>`;
+                html += `<div class="h-32 bg-slate-50/40 rounded-xl p-1.5 border border-slate-100 opacity-30 text-slate-400 text-xs">${dayNum}</div>`;
             }
 
-            // Tanggal aktif di bulan ini
+            // Kotak tanggal aktif di bulan ini
             for (let d = 1; d <= totalDays; d++) {
                 const dStr = String(d).padStart(2, '0');
                 const mStr = String(month + 1).padStart(2, '0');
                 const dateISO = `${year}-${mStr}-${dStr}`;
                 const isToday = (dateISO === todayISO);
 
-                // Cari job yang tanggalnya cocok dengan tanggal di kalender ini
+                // Cocokkan job dengan tanggal kalender
                 const matchedJobs = freelanceJobs.filter(j => j.isoDate === dateISO);
                 
                 let jobsBadge = matchedJobs.map(j => {
-                    let shortTitle = j.vendor ? j.vendor.split(' (')[0] : "Foto Wisuda";
+                    let clientName = j.vendor ? j.vendor.split(' (')[0] : "Foto Wisuda";
                     return `
                         <div class="text-[9px] bg-blue-50 border border-blue-200 text-blue-900 font-bold p-1 rounded mb-1 truncate shadow-xs">
                             <span class="block text-blue-700 font-mono">${j.jam.split(' - ')[0]}</span>
-                            <span class="truncate block text-slate-800">${shortTitle}</span>
+                            <span class="truncate block text-slate-800">${clientName}</span>
                         </div>
                     `;
                 }).join('');
 
                 html += `
-                    <div class="h-28 bg-white rounded-xl p-1.5 border ${isToday ? 'border-blue-500 ring-2 ring-blue-100 bg-blue-50/10' : 'border-slate-200'} shadow-xs flex flex-col justify-between overflow-hidden">
+                    <div class="h-32 bg-white rounded-xl p-1.5 border ${isToday ? 'border-blue-500 ring-2 ring-blue-100 bg-blue-50/10' : 'border-slate-200'} shadow-xs flex flex-col justify-between overflow-hidden">
                         <div class="flex justify-between items-center">
                             <span class="text-xs font-bold ${isToday ? 'bg-blue-600 text-white w-5 h-5 rounded-full flex items-center justify-center' : 'text-slate-700'}">${d}</span>
-                            ${matchedJobs.length > 0 ? `<span class="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1 rounded">${matchedJobs.length} job</span>` : ''}
+                            ${matchedJobs.length > 0 ? `<span class="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded-full">${matchedJobs.length} job</span>` : ''}
                         </div>
                         <div class="space-y-0.5 overflow-y-auto touch-scroll flex-1 mt-1">
                             ${jobsBadge}
                         </div>
                     </div>
                 `;
+            }
+
+            // Sisa kotak kosong di akhir bulan agar grid tetap rapi
+            const totalCellsSoFar = startDay + totalDays;
+            const remainingCells = (totalCellsSoFar % 7 === 0) ? 0 : 7 - (totalCellsSoFar % 7);
+            for (let i = 1; i <= remainingCells; i++) {
+                html += `<div class="h-32 bg-slate-50/40 rounded-xl p-1.5 border border-slate-100 opacity-30 text-slate-400 text-xs">${i}</div>`;
             }
 
             grid.innerHTML = html;
