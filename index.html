@@ -408,29 +408,37 @@
 
             let html = '';
 
+            // Tanggal abu-abu dari bulan sebelumnya
             for (let i = startDay - 1; i >= 0; i--) {
                 const dayNum = prevTotalDays - i;
-                html += `<div class="h-24 bg-slate-50/50 rounded-xl p-1.5 border border-slate-100 opacity-40 text-slate-400 text-xs">${dayNum}</div>`;
+                html += `<div class="h-28 bg-slate-50/40 rounded-xl p-1.5 border border-slate-100 opacity-30 text-slate-400 text-xs">${dayNum}</div>`;
             }
 
+            // Tanggal aktif di bulan ini
             for (let d = 1; d <= totalDays; d++) {
                 const dStr = String(d).padStart(2, '0');
                 const mStr = String(month + 1).padStart(2, '0');
                 const dateISO = `${year}-${mStr}-${dStr}`;
                 const isToday = (dateISO === todayISO);
 
+                // Cari job yang tanggalnya cocok dengan tanggal di kalender ini
                 const matchedJobs = freelanceJobs.filter(j => j.isoDate === dateISO);
-                let jobsBadge = matchedJobs.map(j => `
-                    <div class="text-[9px] bg-blue-50 border border-blue-200 text-blue-800 font-bold p-1 rounded mb-1 truncate">
-                        <span class="block text-blue-900">${j.jam}</span>
-                        <span class="truncate">Foto Wisuda</span>
-                    </div>
-                `).join('');
+                
+                let jobsBadge = matchedJobs.map(j => {
+                    let shortTitle = j.vendor ? j.vendor.split(' (')[0] : "Foto Wisuda";
+                    return `
+                        <div class="text-[9px] bg-blue-50 border border-blue-200 text-blue-900 font-bold p-1 rounded mb-1 truncate shadow-xs">
+                            <span class="block text-blue-700 font-mono">${j.jam.split(' - ')[0]}</span>
+                            <span class="truncate block text-slate-800">${shortTitle}</span>
+                        </div>
+                    `;
+                }).join('');
 
                 html += `
-                    <div class="h-24 bg-white rounded-xl p-1.5 border ${isToday ? 'border-blue-500 ring-2 ring-blue-100' : 'border-slate-200'} shadow-xs flex flex-col justify-between overflow-hidden">
+                    <div class="h-28 bg-white rounded-xl p-1.5 border ${isToday ? 'border-blue-500 ring-2 ring-blue-100 bg-blue-50/10' : 'border-slate-200'} shadow-xs flex flex-col justify-between overflow-hidden">
                         <div class="flex justify-between items-center">
                             <span class="text-xs font-bold ${isToday ? 'bg-blue-600 text-white w-5 h-5 rounded-full flex items-center justify-center' : 'text-slate-700'}">${d}</span>
+                            ${matchedJobs.length > 0 ? `<span class="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1 rounded">${matchedJobs.length} job</span>` : ''}
                         </div>
                         <div class="space-y-0.5 overflow-y-auto touch-scroll flex-1 mt-1">
                             ${jobsBadge}
