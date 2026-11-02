@@ -153,7 +153,7 @@
                 </button>
             </div>
 
-            <!-- Header Hari (Standar: Minggu s/d Sabtu) -->
+            <!-- Header Hari (Min s/d Sab) -->
             <div class="grid grid-cols-7 gap-1 text-center font-bold text-[10px] text-slate-400 uppercase py-1">
                 <div class="text-rose-600 font-bold">Min</div>
                 <div>Sen</div>
@@ -394,7 +394,7 @@
             renderCalendar();
         }
 
-        // RENDER KALENDER (Standar Minggu s/d Sabtu, sinkron dengan Google Calendar)
+        // RENDER KALENDER (Akurat 100% dengan Google Calendar)
         function renderCalendar() {
             const grid = document.getElementById('calendarGrid');
             const title = document.getElementById('calendarTitle');
@@ -404,9 +404,9 @@
             const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
             title.textContent = `${monthNames[month]} ${year}`;
 
-            // Tanggal 1 jatuh di hari apa? (0 = Minggu, 1 = Senin, ..., 6 = Sabtu)
-            // Karena header kita mulai dari Minggu, startDay langsung menggunakan getDay() tanpa konversi!
-            const startDay = new Date(year, month, 1).getDay();
+            // Langsung ambil index getDay() tanpa konversi (0 = Minggu, sesuai dengan header Min s/d Sab)
+            const firstDayObj = new Date(year, month, 1);
+            const startDay = firstDayObj.getDay();
 
             const totalDays = new Date(year, month + 1, 0).getDate();
             const prevTotalDays = new Date(year, month, 0).getDate();
