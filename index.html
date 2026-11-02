@@ -171,11 +171,11 @@
                 </div>
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 uppercase">Tipe Job</label>
-                    <input type="text" id="freeTipe" placeholder="Misal: Wisuda / Wedding / Lamaran" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold outline-none mt-1">
+                    <input type="text" id="freeTipe" placeholder="Misal: Foto Wisuda / Wedding" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold outline-none mt-1" value="Foto Wisuda">
                 </div>
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 uppercase">Vendor</label>
-                    <input type="text" id="freeVendor" placeholder="Nama Vendor Organizer atau Klien" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold outline-none mt-1">
+                    <input type="text" id="freeVendor" placeholder="Nama Vendor" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold outline-none mt-1" value="Vividlens">
                 </div>
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 uppercase">Lokasi Acara</label>
@@ -183,7 +183,7 @@
                 </div>
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 uppercase">Fee (Rp)</label>
-                    <input type="number" id="freeFee" placeholder="Contoh: 1500000" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold outline-none mt-1">
+                    <input type="number" id="freeFee" placeholder="Contoh: 250000" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold outline-none mt-1">
                 </div>
 
                 <button onclick="submitFreelanceJob()" id="btnSave" class="w-full py-3.5 bg-slate-900 hover:bg-black text-white font-bold text-xs rounded-xl shadow transition active:scale-[0.99]">
@@ -237,6 +237,19 @@
             return 'Rp' + Number(num || 0).toLocaleString('id-ID');
         }
 
+        // Helper untuk membersihkan format tanggal ISO / string agar bersih dan rapi di tabel
+        function cleanDisplayDate(dateStr) {
+            if (!dateStr) return "-";
+            if (dateStr.includes('T') || (dateStr.includes('-') && dateStr.length > 10)) {
+                const d = new Date(dateStr);
+                if (!isNaN(d.getTime())) {
+                    const mNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+                    return `${d.getDate()} ${mNames[d.getMonth()]} ${d.getFullYear()}`;
+                }
+            }
+            return dateStr;
+        }
+
         async function fetchFreelanceData() {
             const tbody = document.getElementById('freelanceTableBody');
             tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 italic"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Memuat data dari Google Sheets...</td></tr>`;
@@ -248,6 +261,7 @@
                 if (data && data.status === 'success' && data.freelance) {
                     freelanceJobs = data.freelance.map(j => ({
                         ...j,
+                        cleanDateStr: cleanDisplayDate(j.tanggal),
                         isoDate: parseSheetDateToISO(j.tanggal)
                     }));
                     
@@ -272,6 +286,9 @@
                 return `${y}-${m}-${d}`;
             }
             const str = String(dateStr).trim();
+            if (str.includes('T')) {
+                return str.split('T')[0];
+            }
             if (str.includes('-')) {
                 const parts = str.split('-');
                 if (parts.length === 3) {
@@ -290,19 +307,19 @@
             const tbody = document.getElementById('freelanceTableBody');
             
             if (freelanceJobs.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 italic">Belum ada riwayat job tersimpan di sesi ini.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 italic">Belum ada riwayat job tersimpan.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = freelanceJobs.map(j => `
                 <tr class="hover:bg-slate-50 transition">
                     <td class="py-3 px-4">
-                        <span class="font-semibold text-slate-800 block">${j.tanggal}</span>
+                        <span class="font-semibold text-slate-800 block">${j.cleanDateStr}</span>
                         <span class="text-[11px] font-mono text-blue-700">${j.jam} WIB</span>
                     </td>
                     <td class="py-3 px-3 font-bold text-blue-700">${j.tipeJob}</td>
-                    <td class="py-3 px-3 text-slate-700">${j.vendor}</td>
-                    <td class="py-3 px-3 text-slate-500">${j.lokasi}</td>
+                    <td class="py-3 px-3 text-slate-700 font-semibold">Vividlens</td>
+                    <td class="py-3 px-3 text-slate-500">${j.lokasi} <span class="block text-[10px] text-slate-400">${j.vendor}</span></td>
                     <td class="py-3 px-3 text-right font-bold text-emerald-700">${formatRupiah(j.fee)}</td>
                 </tr>
             `).join('');
@@ -380,13 +397,13 @@
         async function submitFreelanceJob() {
             const tanggal = document.getElementById('freeTanggal').value;
             const jam = document.getElementById('freeJam').value.trim() || '08:00 - Selesai';
-            const tipeJob = document.getElementById('freeTipe').value.trim();
-            const vendor = document.getElementById('freeVendor').value.trim();
+            const tipeJob = document.getElementById('freeTipe').value.trim() || 'Foto Wisuda';
+            const vendor = document.getElementById('freeVendor').value.trim() || 'Vividlens';
             const lokasi = document.getElementById('freeLokasi').value.trim();
             const fee = document.getElementById('freeFee').value.trim();
 
-            if (!tanggal || !tipeJob || !vendor) {
-                return alert('Tanggal, Tipe Job, dan Vendor wajib diisi!');
+            if (!tanggal || !vendor) {
+                return alert('Tanggal dan Vendor wajib diisi!');
             }
 
             const btn = document.getElementById('btnSave');
@@ -416,14 +433,11 @@
                     body: JSON.stringify(payload)
                 });
 
-                showToast("Job freelance berhasil disimpan ke Sheets & Kalender!");
+                showToast("Job berhasil disimpan ke Sheets & Kalender!");
                 document.getElementById('freeJam').value = '';
-                document.getElementById('freeTipe').value = '';
-                document.getElementById('freeVendor').value = '';
                 document.getElementById('freeLokasi').value = '';
                 document.getElementById('freeFee').value = '';
                 
-                // Ambil ulang data terbaru dari sheets
                 fetchFreelanceData();
                 switchMode('home');
             } catch (err) {
