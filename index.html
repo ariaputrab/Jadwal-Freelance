@@ -389,23 +389,57 @@
             renderCalendar();
         }
 
+        function parseSheetDateToISO(dateStr) {
+            if (!dateStr) return "";
+            if (dateStr instanceof Date) {
+                const y = dateStr.getFullYear();
+                const m = String(dateStr.getMonth() + 1).padStart(2, '0');
+                const d = String(dateStr.getDate()).padStart(2, '0');
+                return `${y}-${m}-${d}`;
+            }
+            const str = String(dateStr).trim();
+            if (str.includes('T')) {
+                return str.split('T')[0];
+            }
+            
+            // Format dari sheet misal: "10-Nov-2026" atau "10-Nov-26"
+            if (str.includes('-')) {
+                const parts = str.split('-');
+                if (parts.length === 3) {
+                    const d = parts[0].padStart(2, '0');
+                    const mStr = parts[1].toLowerCase().substring(0, 3);
+                    let y = parts[2];
+                    if (y.length === 2) y = '20' + y;
+                    
+                    const monthMap = { 
+                        'jan':'01', 'feb':'02', 'mar':'03', 'apr':'04', 'may':'05', 'mei':'05', 
+                        'jun':'06', 'jul':'07', 'aug':'08', 'agu':'08', 'sep':'09', 'oct':'10', 
+                        'okt':'10', 'nov':'11', 'dec':'12', 'des':'12' 
+                    };
+                    const m = monthMap[mStr] || '01';
+                    return `${y}-${m}-${d}`;
+                }
+            }
+            return "";
+        }
+
         function renderCalendar() {
             const grid = document.getElementById('calendarGrid');
             const title = document.getElementById('calendarTitle');
             const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
+            const month = currentDate.getMonth(); // 0 - 11
 
             const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
             title.textContent = `${monthNames[month]} ${year}`;
 
-            // Ambil hari apa tanggal 1 di bulan ini (0 = Minggu, 1 = Senin, ..., 6 = Sabtu)
+            // Tanggal 1 di bulan ini jatuh di hari apa? (0=Minggu, 1=Senin, ..., 6=Sabtu)
             const firstDayIndex = new Date(year, month, 1).getDay();
-            
-            // Karena header kita mulai dari Senin (Sen, Sel, Rab, Kam, Jum, Sab, Min)
-            // Ubah Minggu (0) menjadi 6, dan hari lainnya dikurangi 1
+            // Konversi supaya Senin jadi kolom pertama (0=Senin, 1=Selasa, ..., 6=Minggu)
             const startDay = (firstDayIndex === 0) ? 6 : firstDayIndex - 1;
-            
+
+            // Total hari di bulan ini
             const totalDays = new Date(year, month + 1, 0).getDate();
+            // Total hari di bulan sebelumnya
             const prevTotalDays = new Date(year, month, 0).getDate();
 
             const now = new Date();
@@ -413,27 +447,27 @@
 
             let html = '';
 
-            // Kotak tanggal abu-abu dari bulan sebelumnya
+            // 1. Kotak tanggal sisa dari bulan sebelumnya
             for (let i = startDay - 1; i >= 0; i--) {
                 const dayNum = prevTotalDays - i;
                 html += `<div class="h-32 bg-slate-50/40 rounded-xl p-1.5 border border-slate-100 opacity-30 text-slate-400 text-xs">${dayNum}</div>`;
             }
 
-            // Kotak tanggal aktif di bulan ini
+            // 2. Kotak tanggal aktif di bulan ini
             for (let d = 1; d <= totalDays; d++) {
                 const dStr = String(d).padStart(2, '0');
                 const mStr = String(month + 1).padStart(2, '0');
                 const dateISO = `${year}-${mStr}-${dStr}`;
                 const isToday = (dateISO === todayISO);
 
-                // Cocokkan job dengan tanggal kalender
+                // Filter job yang tanggal ISO-nya benar-benar cocok dengan tanggal kotak ini
                 const matchedJobs = freelanceJobs.filter(j => j.isoDate === dateISO);
                 
                 let jobsBadge = matchedJobs.map(j => {
                     let clientName = j.vendor ? j.vendor.split(' (')[0] : "Foto Wisuda";
                     return `
                         <div class="text-[9px] bg-blue-50 border border-blue-200 text-blue-900 font-bold p-1 rounded mb-1 truncate shadow-xs">
-                            <span class="block text-blue-700 font-mono">${j.jam.split(' - ')[0]}</span>
+                            <span class="block text-blue-700 font-mono">${j.jam ? j.jam.split(' - ')[0] : ''}</span>
                             <span class="truncate block text-slate-800">${clientName}</span>
                         </div>
                     `;
@@ -451,6 +485,16 @@
                     </div>
                 `;
             }
+
+            // 3. Sisa kotak kosong di akhir bulan agar bentuk grid kalendernya tetap kotak rapi
+            const totalCellsSoFar = startDay + totalDays;
+            const remainingCells = (totalCellsSoFar % 7 === 0) ? 0 : 7 - (totalCellsSoFar % 7);
+            for (let i = 1; i <= remainingCells; i++) {
+                html += `<div class="h-32 bg-slate-50/40 rounded-xl p-1.5 border border-slate-100 opacity-30 text-slate-400 text-xs">${i}</div>`;
+            }
+
+            grid.innerHTML = html;
+        }
 
             // Sisa kotak kosong di akhir bulan agar grid tetap rapi
             const totalCellsSoFar = startDay + totalDays;
