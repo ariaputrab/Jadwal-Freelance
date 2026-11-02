@@ -30,16 +30,13 @@
                 </div>
             </div>
 
-            <!-- Tab Switcher Menu -->
+            <!-- Tab Switcher Menu (Tanpa Kalender) -->
             <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 w-full sm:w-auto overflow-x-auto touch-scroll">
                 <button id="tabHomeBtn" onclick="switchMode('home')" class="flex-1 sm:flex-none py-2 px-3 bg-white text-slate-900 font-bold text-xs rounded-lg shadow-sm transition flex items-center justify-center gap-1.5 whitespace-nowrap">
                     <i class="fa-solid fa-house text-[11px]"></i> Home
                 </button>
                 <button id="tabListBtn" onclick="switchMode('list')" class="flex-1 sm:flex-none py-2 px-3 text-slate-600 hover:text-slate-900 font-bold text-xs rounded-lg transition flex items-center justify-center gap-1.5 whitespace-nowrap">
                     <i class="fa-solid fa-table-list text-[11px]"></i> Daftar Job
-                </button>
-                <button id="tabCalendarBtn" onclick="switchMode('calendar')" class="flex-1 sm:flex-none py-2 px-3 text-slate-600 hover:text-slate-900 font-bold text-xs rounded-lg transition flex items-center justify-center gap-1.5 whitespace-nowrap">
-                    <i class="fa-solid fa-calendar-days text-[11px]"></i> Kalender
                 </button>
                 <button id="tabNewBtn" onclick="switchMode('new')" class="flex-1 sm:flex-none py-2 px-3 text-slate-600 hover:text-slate-900 font-bold text-xs rounded-lg transition flex items-center justify-center gap-1.5 whitespace-nowrap">
                     <i class="fa-solid fa-plus text-[11px]"></i> Tambah Job
@@ -69,7 +66,7 @@
 
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
                 <h3 class="font-bold text-slate-900 text-xs uppercase tracking-wider">Aksi Cepat</h3>
-                <div class="grid grid-cols-3 gap-2">
+                <div class="grid grid-cols-2 gap-2">
                     <button onclick="switchMode('new')" class="p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition flex flex-col items-center text-center gap-1.5 group">
                         <div class="w-9 h-9 bg-slate-900 text-white rounded-xl flex items-center justify-center text-sm shadow group-hover:scale-105 transition">
                             <i class="fa-solid fa-plus"></i>
@@ -81,12 +78,6 @@
                             <i class="fa-solid fa-table-list"></i>
                         </div>
                         <span class="font-bold text-xs text-slate-800">Lihat Tabel</span>
-                    </button>
-                    <button onclick="switchMode('calendar')" class="p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition flex flex-col items-center text-center gap-1.5 group">
-                        <div class="w-9 h-9 bg-blue-600 text-white rounded-xl flex items-center justify-center text-sm shadow group-hover:scale-105 transition">
-                            <i class="fa-solid fa-calendar-days"></i>
-                        </div>
-                        <span class="font-bold text-xs text-slate-800">Kalender</span>
                     </button>
                 </div>
             </div>
@@ -136,37 +127,7 @@
             </div>
         </div>
 
-        <!-- HALAMAN 3: KALENDER INTERAKTIF -->
-        <div id="sectionCalendar" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4 hidden">
-            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <div class="flex items-center gap-3">
-                    <button onclick="changeMonth(-1)" class="w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-xl flex items-center justify-center transition text-slate-700">
-                        <i class="fa-solid fa-chevron-left text-xs"></i>
-                    </button>
-                    <h2 id="calendarTitle" class="text-sm font-bold text-slate-900">November 2026</h2>
-                    <button onclick="changeMonth(1)" class="w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-xl flex items-center justify-center transition text-slate-700">
-                        <i class="fa-solid fa-chevron-right text-xs"></i>
-                    </button>
-                </div>
-                <button onclick="goToCurrentMonth()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-1.5 rounded-xl transition">
-                    Bulan Ini
-                </button>
-            </div>
-
-            <!-- Header Hari (Min s/d Sab) -->
-            <div class="grid grid-cols-7 gap-1 text-center font-bold text-[10px] text-slate-400 uppercase py-1">
-                <div class="text-rose-600 font-bold">Min</div>
-                <div>Sen</div>
-                <div>Sel</div>
-                <div>Rab</div>
-                <div>Kam</div>
-                <div>Jum</div>
-                <div>Sab</div>
-            </div>
-            <div id="calendarGrid" class="grid grid-cols-7 gap-1.5 sm:gap-2"></div>
-        </div>
-
-        <!-- HALAMAN 4: TAMBAH JOB BARU -->
+        <!-- HALAMAN 3: TAMBAH JOB BARU -->
         <div id="sectionNew" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm max-w-xl mx-auto space-y-4 hidden">
             <div class="border-b border-slate-100 pb-3">
                 <h3 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
@@ -220,27 +181,22 @@
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbymxf1pIrMhVi77zHolsSVW9gsFLni-xs2kX5zTkbDF-OYX-Jwrb6pqD18g7Vu0kyPw/exec";
         
-        let currentDate = new Date();
         let freelanceJobs = [];
         let currentMonthFilter = 'ALL';
 
         function switchMode(mode) {
             const isHome = mode === 'home';
             const isList = mode === 'list';
-            const isCalendar = mode === 'calendar';
             const isNew = mode === 'new';
 
             document.getElementById('sectionHome').classList.toggle('hidden', !isHome);
             document.getElementById('sectionList').classList.toggle('hidden', !isList);
-            document.getElementById('sectionCalendar').classList.toggle('hidden', !isCalendar);
             document.getElementById('sectionNew').classList.toggle('hidden', !isNew);
 
             document.getElementById('tabHomeBtn').className = isHome ? getActiveTab() : getInactiveTab();
             document.getElementById('tabListBtn').className = isList ? getActiveTab() : getInactiveTab();
-            document.getElementById('tabCalendarBtn').className = isCalendar ? getActiveTab() : getInactiveTab();
             document.getElementById('tabNewBtn').className = isNew ? getActiveTab() : getInactiveTab();
 
-            if (isCalendar) renderCalendar();
             if (isList) loadFreelanceJobs();
         }
 
@@ -285,7 +241,6 @@
                     
                     updateHomeStats();
                     loadFreelanceJobs();
-                    renderCalendar();
                 } else {
                     tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-rose-400 italic">Gagal memuat data dari server.</td></tr>`;
                 }
@@ -382,86 +337,6 @@
             document.getElementById('statTotalJob').textContent = freelanceJobs.length;
             const totalFee = freelanceJobs.reduce((sum, j) => sum + (parseInt(j.fee) || 0), 0);
             document.getElementById('statTotalFee').textContent = formatRupiah(totalFee);
-        }
-
-        function changeMonth(dir) {
-            currentDate.setMonth(currentDate.getMonth() + dir);
-            renderCalendar();
-        }
-
-        function goToCurrentMonth() {
-            currentDate = new Date();
-            renderCalendar();
-        }
-
-        // RENDER KALENDER (Akurat 100% dengan Google Calendar)
-        function renderCalendar() {
-            const grid = document.getElementById('calendarGrid');
-            const title = document.getElementById('calendarTitle');
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-
-            const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-            title.textContent = `${monthNames[month]} ${year}`;
-
-            // Langsung ambil index getDay() tanpa konversi (0 = Minggu, sesuai dengan header Min s/d Sab)
-            const firstDayObj = new Date(year, month, 1);
-            const startDay = firstDayObj.getDay();
-
-            const totalDays = new Date(year, month + 1, 0).getDate();
-            const prevTotalDays = new Date(year, month, 0).getDate();
-
-            const now = new Date();
-            const todayISO = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-
-            let html = '';
-
-            // 1. Tanggal abu-abu dari bulan sebelumnya
-            for (let i = startDay - 1; i >= 0; i--) {
-                const dayNum = prevTotalDays - i;
-                html += `<div class="h-32 bg-slate-50/40 rounded-xl p-1.5 border border-slate-100 opacity-30 text-slate-400 text-xs">${dayNum}</div>`;
-            }
-
-            // 2. Tanggal aktif di bulan ini
-            for (let d = 1; d <= totalDays; d++) {
-                const dStr = String(d).padStart(2, '0');
-                const mStr = String(month + 1).padStart(2, '0');
-                const dateISO = `${year}-${mStr}-${dStr}`;
-                const isToday = (dateISO === todayISO);
-
-                const matchedJobs = freelanceJobs.filter(j => j.isoDate === dateISO);
-                
-                let jobsBadge = matchedJobs.map(j => {
-                    let clientName = j.vendor ? j.vendor.split(' (')[0] : "Foto Wisuda";
-                    return `
-                        <div class="text-[9px] bg-blue-50 border border-blue-200 text-blue-900 font-bold p-1 rounded mb-1 truncate shadow-xs">
-                            <span class="block text-blue-700 font-mono">${j.jam ? j.jam.split(' - ')[0] : ''}</span>
-                            <span class="truncate block text-slate-800">${clientName}</span>
-                        </div>
-                    `;
-                }).join('');
-
-                html += `
-                    <div class="h-32 bg-white rounded-xl p-1.5 border ${isToday ? 'border-blue-500 ring-2 ring-blue-100 bg-blue-50/10' : 'border-slate-200'} shadow-xs flex flex-col justify-between overflow-hidden">
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs font-bold ${isToday ? 'bg-blue-600 text-white w-5 h-5 rounded-full flex items-center justify-center' : 'text-slate-700'}">${d}</span>
-                            ${matchedJobs.length > 0 ? `<span class="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded-full">${matchedJobs.length} job</span>` : ''}
-                        </div>
-                        <div class="space-y-0.5 overflow-y-auto touch-scroll flex-1 mt-1">
-                            ${jobsBadge}
-                        </div>
-                    </div>
-                `;
-            }
-
-            // 3. Sisa kotak kosong di akhir bulan
-            const totalCellsSoFar = startDay + totalDays;
-            const remainingCells = (totalCellsSoFar % 7 === 0) ? 0 : 7 - (totalCellsSoFar % 7);
-            for (let i = 1; i <= remainingCells; i++) {
-                html += `<div class="h-32 bg-slate-50/40 rounded-xl p-1.5 border border-slate-100 opacity-30 text-slate-400 text-xs">${i}</div>`;
-            }
-
-            grid.innerHTML = html;
         }
 
         async function submitFreelanceJob() {
