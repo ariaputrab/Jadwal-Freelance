@@ -288,6 +288,7 @@
             }
         }
 
+        // Parsing tanggal anti-timezone (murni string mentah tanpa konversi Date object JS)
         function parseSheetDateToISO(dateStr) {
             if (!dateStr) return "";
             if (dateStr instanceof Date) {
@@ -396,9 +397,8 @@
             const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
             title.textContent = `${monthNames[month]} ${year}`;
 
-            // Tanggal 1 jatuh di hari apa? (0 = Minggu, 1 = Senin, ..., 6 = Sabtu)
-            const firstDayIndex = new Date(year, month, 1).getDay();
-            // Konversi agar Senin jadi kolom pertama (Senin=0, Selasa=1, ..., Minggu=6)
+            // Menggunakan tanggal 2 pukul 12 siang lokal agar getDay() stabil tanpa geser timezone
+            const firstDayIndex = new Date(year, month, 2, 12, 0, 0).getDay();
             const startDay = (firstDayIndex === 0) ? 6 : firstDayIndex - 1;
 
             const totalDays = new Date(year, month + 1, 0).getDate();
@@ -409,7 +409,7 @@
 
             let html = '';
 
-            // 1. Tanggal abu-abu dari bulan sebelumnya
+            // 1. Tanggal abu-abu dari bulan lalu
             for (let i = startDay - 1; i >= 0; i--) {
                 const dayNum = prevTotalDays - i;
                 html += `<div class="h-32 bg-slate-50/40 rounded-xl p-1.5 border border-slate-100 opacity-30 text-slate-400 text-xs">${dayNum}</div>`;
@@ -447,7 +447,7 @@
                 `;
             }
 
-            // 3. Sisa kotak kosong di akhir bulan
+            // 3. Sisa kotak kosong akhir bulan
             const totalCellsSoFar = startDay + totalDays;
             const remainingCells = (totalCellsSoFar % 7 === 0) ? 0 : 7 - (totalCellsSoFar % 7);
             for (let i = 1; i <= remainingCells; i++) {
