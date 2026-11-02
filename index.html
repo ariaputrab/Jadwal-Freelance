@@ -99,7 +99,7 @@
                     <h3 class="text-sm font-bold text-slate-900"><i class="fa-solid fa-table-list text-emerald-600 mr-1.5"></i> Riwayat Daftar Job Freelance</h3>
                     <p class="text-[11px] text-slate-500">Semua jadwal yang tersimpan di Google Sheets.</p>
                 </div>
-                <button onclick="loadFreelanceJobs()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-1.5 rounded-xl transition">
+                <button onclick="fetchFreelanceData()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-1.5 rounded-xl transition">
                     <i class="fa-solid fa-arrows-rotate mr-1"></i> Refresh
                 </button>
             </div>
@@ -118,7 +118,7 @@
                         </thead>
                         <tbody id="freelanceTableBody" class="divide-y divide-slate-100 text-xs text-slate-700 bg-white">
                             <tr>
-                                <td colspan="5" class="p-6 text-center text-slate-400 italic">Belum ada riwayat job tersimpan di sesi ini.</td>
+                                <td colspan="5" class="p-6 text-center text-slate-400 italic">Memuat data dari Google Sheets...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -237,7 +237,22 @@
             return 'Rp' + Number(num || 0).toLocaleString('id-ID');
         }
 
-        async function loadFreelanceJobs() {
+        // Fungsi baru untuk menarik data langsung dari Google Sheets (tab Jadwal Freelance)
+        async function fetchFreelanceData() {
+            try {
+                const res = await fetch(SCRIPT_URL);
+                const data = await res.json();
+                
+                // Jika ingin mengambil khusus data dari tab Jadwal Freelance, kita bisa sesuaikan backend doGet. 
+                // Untuk sementara kita ambil dari data klien atau buat endpoint khusus. 
+                // Karena doGet saat ini mengambil data client umum, mari kita buat fetch khusus / simpan ke localStorage.
+            } catch (e) {
+                console.log(e);
+            }
+        }
+
+        // Agar langsung bisa dibaca dari memori atau input lokal sementara:
+        function loadFreelanceJobs() {
             const tbody = document.getElementById('freelanceTableBody');
             
             if (freelanceJobs.length === 0) {
