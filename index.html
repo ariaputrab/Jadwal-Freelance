@@ -346,13 +346,9 @@
             }
 
             tbody.innerHTML = filteredJobs.map(j => {
-                let displayTipe = "Foto Wisuda";
-                let detailPaket = j.tipeJob && j.tipeJob.includes("(") ? j.tipeJob : "";
+                let displayTipe = "Foto Wisuda"; // Hanya tampilkan ini saja tanpa detail paket
 
-                // Deteksi apakah ini job dari VividLens atau input manual
                 let isVividLens = j.tipeJob && j.tipeJob.includes("VividLens");
-                
-                // Jika dari VividLens, Vendor fix "Vividlens", dan info klien ditaruh di bawah lokasi
                 let vendorName = isVividLens ? "Vividlens" : (j.vendor || "Mandiri");
                 let lokasiText = isVividLens ? (j.lokasi ? j.lokasi.split(' (')[0] : '-') : j.lokasi;
                 let clientInfo = isVividLens && j.vendor && j.vendor.includes('(') ? j.vendor : '';
@@ -365,7 +361,6 @@
                         </td>
                         <td class="py-3 px-3 font-bold text-slate-900">
                             ${displayTipe}
-                            ${detailPaket ? `<span class="block text-[10px] font-normal text-blue-600">${detailPaket}</span>` : ''}
                         </td>
                         <td class="py-3 px-3 text-slate-700 font-semibold">${vendorName}</td>
                         <td class="py-3 px-3 text-slate-500">
