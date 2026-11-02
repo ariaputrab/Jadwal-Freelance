@@ -237,21 +237,55 @@
             return 'Rp' + Number(num || 0).toLocaleString('id-ID');
         }
 
-        // Fungsi baru untuk menarik data langsung dari Google Sheets (tab Jadwal Freelance)
         async function fetchFreelanceData() {
+            const tbody = document.getElementById('freelanceTableBody');
+            tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 italic"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Memuat data dari Google Sheets...</td></tr>`;
+
             try {
                 const res = await fetch(SCRIPT_URL);
                 const data = await res.json();
                 
-                // Jika ingin mengambil khusus data dari tab Jadwal Freelance, kita bisa sesuaikan backend doGet. 
-                // Untuk sementara kita ambil dari data klien atau buat endpoint khusus. 
-                // Karena doGet saat ini mengambil data client umum, mari kita buat fetch khusus / simpan ke localStorage.
-            } catch (e) {
-                console.log(e);
+                if (data && data.status === 'success' && data.freelance) {
+                    freelanceJobs = data.freelance.map(j => ({
+                        ...j,
+                        isoDate: parseSheetDateToISO(j.tanggal)
+                    }));
+                    
+                    updateHomeStats();
+                    loadFreelanceJobs();
+                    renderCalendar();
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-rose-400 italic">Gagal memuat data dari server.</td></tr>`;
+                }
+            } catch (err) {
+                console.error(err);
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-rose-400 italic">Terjadi kesalahan koneksi.</td></tr>`;
             }
         }
 
-        // Agar langsung bisa dibaca dari memori atau input lokal sementara:
+        function parseSheetDateToISO(dateStr) {
+            if (!dateStr) return "";
+            if (dateStr instanceof Date) {
+                const y = dateStr.getFullYear();
+                const m = String(dateStr.getMonth() + 1).padStart(2, '0');
+                const d = String(dateStr.getDate()).padStart(2, '0');
+                return `${y}-${m}-${d}`;
+            }
+            const str = String(dateStr).trim();
+            if (str.includes('-')) {
+                const parts = str.split('-');
+                if (parts.length === 3) {
+                    const d = parts[0].padStart(2, '0');
+                    const mStr = parts[1].toLowerCase().substring(0, 3);
+                    const y = parts[2].length === 2 ? '20' + parts[2] : parts[2];
+                    const monthMap = { 'jan':'01', 'feb':'02', 'mar':'03', 'apr':'04', 'may':'05', 'mei':'05', 'jun':'06', 'jul':'07', 'aug':'08', 'agu':'08', 'sep':'09', 'oct':'10', 'okt':'10', 'nov':'11', 'dec':'12', 'des':'12' };
+                    const m = monthMap[mStr] || '11';
+                    return `${y}-${m}-${d}`;
+                }
+            }
+            return "";
+        }
+
         function loadFreelanceJobs() {
             const tbody = document.getElementById('freelanceTableBody');
             
@@ -363,18 +397,6 @@
             const monthNamesShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
             const formattedDate = `${parseInt(parts[2], 10)}-${monthNamesShort[parseInt(parts[1], 10)-1]}-${parts[0]}`;
 
-            freelanceJobs.push({
-                tanggal: formattedDate,
-                isoDate: tanggal,
-                jam,
-                tipeJob,
-                vendor,
-                lokasi: lokasi || '-',
-                fee: fee || 0
-            });
-
-            updateHomeStats();
-
             const payload = {
                 action: "new_freelance_job",
                 tanggal: formattedDate,
@@ -400,6 +422,9 @@
                 document.getElementById('freeVendor').value = '';
                 document.getElementById('freeLokasi').value = '';
                 document.getElementById('freeFee').value = '';
+                
+                // Ambil ulang data terbaru dari sheets
+                fetchFreelanceData();
                 switchMode('home');
             } catch (err) {
                 alert('Gagal menyimpan: ' + err.message);
@@ -417,8 +442,7 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            updateHomeStats();
-            renderCalendar();
+            fetchFreelanceData();
         });
     </script>
 </body>
