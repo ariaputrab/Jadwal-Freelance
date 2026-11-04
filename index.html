@@ -207,39 +207,48 @@
         }
 
         function parseSheetDateToISO(dateStr) {
-            if (!dateStr) return "";
-            if (dateStr instanceof Date) {
-                const y = dateStr.getFullYear();
-                const m = String(dateStr.getMonth() + 1).padStart(2, '0');
-                const d = String(dateStr.getDate()).padStart(2, '0');
-                return `${y}-${m}-${d}`;
+    if (!dateStr) return "";
+    
+    // Jika berupa objek Date dari JavaScript, konversi aman ke string lokal YYYY-MM-DD
+    if (dateStr instanceof Date) {
+        const y = dateStr.getFullYear();
+        const m = String(dateStr.getMonth() + 1).padStart(2, '0');
+        const d = String(dateStr.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
+    const str = String(dateStr).trim();
+
+    // PERBAIKAN UTAMA: Jika mengandung 'T' (format ISO dari Sheets), 
+    // ambil persis bagian tanggalnya saja (sebelum huruf 'T') tanpa konversi zona waktu!
+    if (str.includes('T')) {
+        return str.split('T')[0];
+    }
+
+    if (str.includes('-')) {
+        const parts = str.split('-');
+        if (parts.length === 3) {
+            // Jika formatnya sudah YYYY-MM-DD
+            if (parts[0].length === 4) {
+                return str.substring(0, 10);
             }
-            const str = String(dateStr).trim();
-            if (str.includes('T')) {
-                return str.split('T')[0];
-            }
-            if (str.includes('-')) {
-                const parts = str.split('-');
-                if (parts.length === 3) {
-                    if (parts[0].length === 4) {
-                        return str.substring(0, 10);
-                    }
-                    const d = parts[0].padStart(2, '0');
-                    const mStr = parts[1].toLowerCase().substring(0, 3);
-                    let y = parts[2];
-                    if (y.length === 2) y = '20' + y;
-                    
-                    const monthMap = { 
-                        'jan':'01', 'feb':'02', 'mar':'03', 'apr':'04', 'may':'05', 'mei':'05', 
-                        'jun':'06', 'jul':'07', 'aug':'08', 'agu':'08', 'sep':'09', 'oct':'10', 
-                        'okt':'10', 'nov':'11', 'dec':'12', 'des':'12' 
-                    };
-                    const m = monthMap[mStr] || '11';
-                    return `${y}-${m}-${d}`;
-                }
-            }
-            return "";
+            // Jika formatnya DD-MMM-YYYY (contoh: 5-Jun-2026)
+            const d = parts[0].padStart(2, '0');
+            const mStr = parts[1].toLowerCase().substring(0, 3);
+            let y = parts[2];
+            if (y.length === 2) y = '20' + y;
+            
+            const monthMap = { 
+                'jan':'01', 'feb':'02', 'mar':'03', 'apr':'04', 'may':'05', 'mei':'05', 
+                'jun':'06', 'jul':'07', 'aug':'08', 'agu':'08', 'sep':'09', 'oct':'10', 
+                'okt':'10', 'nov':'11', 'dec':'12', 'des':'12' 
+            };
+            const m = monthMap[mStr] || '01';
+            return `${y}-${m}-${d}`;
         }
+    }
+    return str.substring(0, 10);
+}
 
         function cleanDisplayDate(dateStr) {
             if (!dateStr) return "-";
