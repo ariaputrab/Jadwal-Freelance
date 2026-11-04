@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -11,307 +12,878 @@
         body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         .touch-scroll::-webkit-scrollbar { width: 4px; }
         .touch-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .calendar-day { min-height: 76px; }
+        .calendar-day:disabled { cursor: default; }
+        @media (max-width: 640px) {
+            .calendar-day { min-height: 62px; }
+        }
     </style>
 </head>
+
 <body class="bg-slate-100 text-slate-800 min-h-screen pb-12 pt-4 px-3 sm:py-8 sm:px-6">
-    <div class="max-w-5xl mx-auto space-y-6">
-        <header class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center text-base shadow-sm">
-                        <i class="fa-solid fa-calendar-check"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-base font-bold text-slate-900 leading-tight">VIVIDLENS GRADUATION</h1>
-                        <p class="text-xs text-slate-500">Raihan Aria • Jadwal & Keuangan</p>
-                    </div>
-                </div>
-            </div>
-            <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 w-full sm:w-auto overflow-x-auto touch-scroll">
-                <button id="tabHomeBtn" onclick="switchMode('home')" class="flex-1 sm:flex-none py-2 px-3 bg-white text-slate-900 font-bold text-xs rounded-lg shadow-sm transition flex items-center justify-center gap-1.5 whitespace-nowrap">
-                    <i class="fa-solid fa-house text-[11px]"></i> Home
-                </button>
-                <button id="tabListBtn" onclick="switchMode('list')" class="flex-1 sm:flex-none py-2 px-3 text-slate-600 hover:text-slate-900 font-bold text-xs rounded-lg transition flex items-center justify-center gap-1.5 whitespace-nowrap">
-                    <i class="fa-solid fa-table-list text-[11px]"></i> Daftar Job
-                </button>
-                <button id="tabNewBtn" onclick="switchMode('new')" class="flex-1 sm:flex-none py-2 px-3 text-slate-600 hover:text-slate-900 font-bold text-xs rounded-lg transition flex items-center justify-center gap-1.5 whitespace-nowrap">
-                    <i class="fa-solid fa-plus text-[11px]"></i> Tambah Job
-                </button>
-            </div>
-        </header>
+<div class="max-w-5xl mx-auto space-y-6">
 
-        <div id="sectionHome" class="space-y-5">
-            <div class="bg-gradient-to-r from-slate-900 to-slate-800 text-white p-6 rounded-2xl shadow-sm space-y-2">
-                <h2 class="text-lg font-bold">Halo, Raihan Aria! 👋</h2>
-                <p class="text-xs text-slate-300">Berikut adalah ringkasan jadwal freelance dan rekap pendapatan kamu.</p>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-1">
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Job Tersimpan</span>
-                    <span id="statTotalJob" class="text-2xl font-bold text-slate-900">0</span>
-                    <span class="text-[10px] text-slate-500 block">Foto Wisuda, dll</span>
+    <!-- HEADER -->
+    <header class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+            <div class="flex items-center gap-2.5">
+                <div class="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center text-base shadow-sm">
+                    <i class="fa-solid fa-calendar-check"></i>
                 </div>
-                <div class="bg-white p-4 rounded-2xl border border-emerald-200 bg-emerald-50/30 shadow-sm space-y-1">
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Total Fee / Pendapatan</span>
-                    <span id="statTotalFee" class="text-xl font-bold text-emerald-800">Rp0</span>
-                    <span class="text-[10px] text-emerald-600 block">Akumulasi seluruh job</span>
-                </div>
-            </div>
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                <h3 class="font-bold text-slate-900 text-xs uppercase tracking-wider">Aksi Cepat</h3>
-                <div class="grid grid-cols-2 gap-2">
-                    <button onclick="switchMode('new')" class="p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition flex flex-col items-center text-center gap-1.5 group">
-                        <div class="w-9 h-9 bg-slate-900 text-white rounded-xl flex items-center justify-center text-sm shadow group-hover:scale-105 transition"><i class="fa-solid fa-plus"></i></div>
-                        <span class="font-bold text-xs text-slate-800">Catat Job</span>
-                    </button>
-                    <button onclick="switchMode('list')" class="p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition flex flex-col items-center text-center gap-1.5 group">
-                        <div class="w-9 h-9 bg-emerald-600 text-white rounded-xl flex items-center justify-center text-sm shadow group-hover:scale-105 transition"><i class="fa-solid fa-table-list"></i></div>
-                        <span class="font-bold text-xs text-slate-800">Lihat Tabel</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div id="sectionList" class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 hidden">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-3 gap-3">
                 <div>
-                    <h3 class="text-sm font-bold text-slate-900"><i class="fa-solid fa-table-list text-emerald-600 mr-1.5"></i> Riwayat Daftar Job Freelance</h3>
-                    <p class="text-[11px] text-slate-500">Pilih filter bulan untuk melihat jadwal spesifik.</p>
-                </div>
-                <button onclick="fetchFreelanceData()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-1.5 rounded-xl transition"><i class="fa-solid fa-arrows-rotate mr-1"></i> Refresh</button>
-            </div>
-            <div id="monthFilterContainer" class="flex items-center gap-1.5 overflow-x-auto touch-scroll pb-1">
-                <button onclick="filterByMonth('ALL')" id="filterBtn-ALL" class="px-3 py-1.5 bg-slate-900 text-white font-bold text-xs rounded-xl whitespace-nowrap transition">Semua</button>
-            </div>
-            <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
-                <div class="overflow-x-auto touch-scroll">
-                    <table class="w-full text-left border-collapse">
-                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 text-[10px] uppercase font-bold tracking-wider">
-                            <tr>
-                                <th class="py-3 px-4">Tanggal & Jam</th><th class="py-3 px-3">Tipe Job</th><th class="py-3 px-3">Klien / Vendor</th><th class="py-3 px-3">Lokasi</th><th class="py-3 px-3 text-right">Fee (Rp)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="freelanceTableBody" class="divide-y divide-slate-100 text-xs text-slate-700 bg-white">
-                            <tr><td colspan="5" class="p-6 text-center text-slate-400 italic">Memuat data dari Google Sheets...</td></tr>
-                        </tbody>
-                    </table>
+                    <h1 class="text-base font-bold text-slate-900 leading-tight">VIVIDLENS GRADUATION</h1>
+                    <p class="text-xs text-slate-500">Raihan Aria • Jadwal & Keuangan</p>
                 </div>
             </div>
         </div>
 
-        <div id="sectionNew" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm max-w-xl mx-auto space-y-4 hidden">
-            <div class="border-b border-slate-100 pb-3">
-                <h3 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-circle-plus text-blue-600"></i> Tambah Jadwal Freelance Baru</h3>
-                <p class="text-xs text-slate-500 mt-0.5">Data akan otomatis masuk ke Google Sheets & Google Calendar.</p>
+        <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 w-full sm:w-auto overflow-x-auto touch-scroll">
+            <button id="tabHomeBtn" onclick="switchMode('home')" class="flex-1 sm:flex-none py-2 px-3 bg-white text-slate-900 font-bold text-xs rounded-lg shadow-sm transition flex items-center justify-center gap-1.5 whitespace-nowrap">
+                <i class="fa-solid fa-house text-[11px]"></i> Home
+            </button>
+
+            <button id="tabCalendarBtn" onclick="switchMode('calendar')" class="flex-1 sm:flex-none py-2 px-3 text-slate-600 hover:text-slate-900 font-bold text-xs rounded-lg transition flex items-center justify-center gap-1.5 whitespace-nowrap">
+                <i class="fa-solid fa-calendar-days text-[11px]"></i> Kalender
+            </button>
+
+            <button id="tabListBtn" onclick="switchMode('list')" class="flex-1 sm:flex-none py-2 px-3 text-slate-600 hover:text-slate-900 font-bold text-xs rounded-lg transition flex items-center justify-center gap-1.5 whitespace-nowrap">
+                <i class="fa-solid fa-table-list text-[11px]"></i> Daftar Job
+            </button>
+
+            <button id="tabNewBtn" onclick="switchMode('new')" class="flex-1 sm:flex-none py-2 px-3 text-slate-600 hover:text-slate-900 font-bold text-xs rounded-lg transition flex items-center justify-center gap-1.5 whitespace-nowrap">
+                <i class="fa-solid fa-plus text-[11px]"></i> Tambah Job
+            </button>
+        </div>
+    </header>
+
+    <!-- HOME -->
+    <div id="sectionHome" class="space-y-5">
+        <div class="bg-gradient-to-r from-slate-900 to-slate-800 text-white p-6 rounded-2xl shadow-sm space-y-2">
+            <h2 class="text-lg font-bold">Halo, Raihan Aria! 👋</h2>
+            <p class="text-xs text-slate-300">Berikut adalah ringkasan jadwal freelance dan rekap pendapatan kamu.</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-1">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Job Tersimpan</span>
+                <span id="statTotalJob" class="text-2xl font-bold text-slate-900">0</span>
+                <span class="text-[10px] text-slate-500 block">Foto Wisuda, dll</span>
             </div>
-            <div class="space-y-3 text-xs">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-400 uppercase">Tanggal Acara</label>
-                        <input type="date" id="freeTanggal" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold outline-none mt-1 cursor-pointer">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-400 uppercase">Jam Sesi / Acara</label>
-                        <input type="text" id="freeJam" placeholder="Contoh: 13:00 - 15:00" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-blue-700 outline-none mt-1">
-                    </div>
-                </div>
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">Tipe Job</label><input type="text" id="freeTipe" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold outline-none mt-1" value="Foto Wisuda"></div>
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">Klien / Vendor</label><input type="text" id="freeVendor" placeholder="Masukkan nama klien/vendor" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold outline-none mt-1"></div>
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">Lokasi Acara</label><input type="text" id="freeLokasi" placeholder="Nama Gedung / Kota (Misal: Balairung UGM)" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold outline-none mt-1"></div>
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">Fee (Rp)</label><input type="number" id="freeFee" placeholder="Contoh: 225000" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold outline-none mt-1"></div>
-                <button onclick="submitFreelanceJob()" id="btnSave" class="w-full py-3.5 bg-slate-900 hover:bg-black text-white font-bold text-xs rounded-xl shadow transition active:scale-[0.99]">Simpan ke Sheets & GCal</button>
+
+            <div class="bg-white p-4 rounded-2xl border border-emerald-200 bg-emerald-50/30 shadow-sm space-y-1">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Total Fee / Pendapatan</span>
+                <span id="statTotalFee" class="text-xl font-bold text-emerald-800">Rp0</span>
+                <span class="text-[10px] text-emerald-600 block">Akumulasi seluruh job</span>
+            </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+            <h3 class="font-bold text-slate-900 text-xs uppercase tracking-wider">Aksi Cepat</h3>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="switchMode('new')" class="p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition flex flex-col items-center text-center gap-1.5 group">
+                    <div class="w-9 h-9 bg-slate-900 text-white rounded-xl flex items-center justify-center text-sm shadow group-hover:scale-105 transition"><i class="fa-solid fa-plus"></i></div>
+                    <span class="font-bold text-xs text-slate-800">Catat Job</span>
+                </button>
+
+                <button onclick="switchMode('list')" class="p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition flex flex-col items-center text-center gap-1.5 group">
+                    <div class="w-9 h-9 bg-emerald-600 text-white rounded-xl flex items-center justify-center text-sm shadow group-hover:scale-105 transition"><i class="fa-solid fa-table-list"></i></div>
+                    <span class="font-bold text-xs text-slate-800">Lihat Tabel</span>
+                </button>
             </div>
         </div>
     </div>
 
-    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2.5 transition-all duration-300 translate-y-20 opacity-0 pointer-events-none text-xs font-semibold z-50">
-        <i class="fa-solid fa-check text-emerald-400"></i><span id="toastMsg">Berhasil!</span>
+    <!-- KALENDER READ ONLY -->
+    <div id="sectionCalendar" class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5 hidden">
+
+        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-slate-100 pb-4">
+            <div>
+                <h3 class="text-sm font-bold text-slate-900">
+                    <i class="fa-solid fa-calendar-days text-blue-600 mr-1.5"></i>
+                    Kalender Freelance
+                </h3>
+                <p class="text-[11px] text-slate-500 mt-1">Tampilan jadwal bulanan seluruh job freelance.</p>
+            </div>
+
+            <button onclick="fetchFreelanceData()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-2 rounded-xl transition">
+                <i class="fa-solid fa-arrows-rotate mr-1"></i> Refresh
+            </button>
+        </div>
+
+        <!-- NAVIGASI BULAN -->
+        <div class="flex items-center justify-between gap-3">
+            <button onclick="changeCalendarMonth(-1)" class="w-10 h-10 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 transition">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+            <div class="text-center">
+                <h2 id="calendarMonthTitle" class="text-base sm:text-lg font-bold text-slate-900">November 2026</h2>
+                <p class="text-[10px] text-slate-400">Kalender jadwal freelance</p>
+            </div>
+
+            <button onclick="changeCalendarMonth(1)" class="w-10 h-10 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 transition">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+
+        <!-- LEGENDA -->
+        <div class="flex flex-wrap gap-4 text-[10px] text-slate-500">
+            <div class="flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+                Ada jadwal
+            </div>
+            <div class="flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                Hari ini
+            </div>
+        </div>
+
+        <!-- GRID KALENDER -->
+        <div class="border border-slate-200 rounded-xl overflow-hidden">
+            <div class="grid grid-cols-7 bg-slate-50 border-b border-slate-200">
+                <div class="text-center py-3 text-[10px] font-bold text-rose-500">Min</div>
+                <div class="text-center py-3 text-[10px] font-bold text-slate-500">Sen</div>
+                <div class="text-center py-3 text-[10px] font-bold text-slate-500">Sel</div>
+                <div class="text-center py-3 text-[10px] font-bold text-slate-500">Rab</div>
+                <div class="text-center py-3 text-[10px] font-bold text-slate-500">Kam</div>
+                <div class="text-center py-3 text-[10px] font-bold text-slate-500">Jum</div>
+                <div class="text-center py-3 text-[10px] font-bold text-slate-500">Sab</div>
+            </div>
+
+            <div id="calendarGrid" class="grid grid-cols-7">
+                <div class="col-span-7 p-8 text-center text-xs text-slate-400">Memuat kalender...</div>
+            </div>
+        </div>
+
+        <!-- DETAIL TANGGAL -->
+        <div id="calendarJobDetails" class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+            <div>
+                <h4 id="selectedCalendarTitle" class="text-xs font-bold text-slate-900">Pilih tanggal</h4>
+                <p class="text-[10px] text-slate-500 mt-1">Detail jadwal pada tanggal yang dipilih akan tampil di sini.</p>
+            </div>
+        </div>
+
+        <p class="text-[10px] text-slate-400 text-center">
+            <i class="fa-solid fa-eye mr-1"></i>
+            Kalender hanya untuk melihat jadwal. Pengelolaan job dilakukan melalui menu Tambah Job.
+        </p>
     </div>
 
-    <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbymxf1pIrMhVi77zHolsSVW9gsFLni-xs2kX5zTkbDF-OYX-Jwrb6pqD18g7Vu0kyPw/exec";
-        let freelanceJobs = [];
-        let currentMonthFilter = 'ALL';
+    <!-- DAFTAR JOB -->
+    <div id="sectionList" class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 hidden">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-3 gap-3">
+            <div>
+                <h3 class="text-sm font-bold text-slate-900"><i class="fa-solid fa-table-list text-emerald-600 mr-1.5"></i> Riwayat Daftar Job Freelance</h3>
+                <p class="text-[11px] text-slate-500">Pilih periode untuk melihat jadwal spesifik.</p>
+            </div>
 
-        function switchMode(mode) {
-            const isHome = mode === 'home', isList = mode === 'list', isNew = mode === 'new';
-            document.getElementById('sectionHome').classList.toggle('hidden', !isHome);
-            document.getElementById('sectionList').classList.toggle('hidden', !isList);
-            document.getElementById('sectionNew').classList.toggle('hidden', !isNew);
-            document.getElementById('tabHomeBtn').className = isHome ? getActiveTab() : getInactiveTab();
-            document.getElementById('tabListBtn').className = isList ? getActiveTab() : getInactiveTab();
-            document.getElementById('tabNewBtn').className = isNew ? getActiveTab() : getInactiveTab();
-            if (isList) loadFreelanceJobs();
+            <button onclick="fetchFreelanceData()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-1.5 rounded-xl transition">
+                <i class="fa-solid fa-arrows-rotate mr-1"></i> Refresh
+            </button>
+        </div>
+
+        <!-- FILTER DROPDOWN -->
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+            <label for="monthFilterSelect" class="text-xs font-semibold text-slate-600">Filter periode:</label>
+            <select id="monthFilterSelect" onchange="filterByMonth(this.value)"
+                class="w-full sm:w-64 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 outline-none focus:border-slate-400">
+                <option value="ALL">Semua Bulan</option>
+            </select>
+        </div>
+
+        <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
+            <div class="overflow-x-auto touch-scroll">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 text-[10px] uppercase font-bold tracking-wider">
+                        <tr>
+                            <th class="py-3 px-4">Tanggal & Jam</th>
+                            <th class="py-3 px-3">Tipe Job</th>
+                            <th class="py-3 px-3">Klien / Vendor</th>
+                            <th class="py-3 px-3">Lokasi</th>
+                            <th class="py-3 px-3 text-right">Fee (Rp)</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="freelanceTableBody" class="divide-y divide-slate-100 text-xs text-slate-700 bg-white">
+                        <tr><td colspan="5" class="p-6 text-center text-slate-400 italic">Memuat data dari Google Sheets...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAMBAH JOB -->
+    <div id="sectionNew" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm max-w-xl mx-auto space-y-4 hidden">
+        <div class="border-b border-slate-100 pb-3">
+            <h3 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-circle-plus text-blue-600"></i> Tambah Jadwal Freelance Baru</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Data akan otomatis masuk ke Google Sheets & Google Calendar.</p>
+        </div>
+
+        <div class="space-y-3 text-xs">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Tanggal Acara</label>
+                    <input type="date" id="freeTanggal" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold outline-none mt-1 cursor-pointer">
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Jam Sesi / Acara</label>
+                    <input type="text" id="freeJam" placeholder="Contoh: 13:00 - 15:00" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-blue-700 outline-none mt-1">
+                </div>
+            </div>
+
+            <div>
+                <label class="text-[10px] font-bold text-slate-400 uppercase">Tipe Job</label>
+                <input type="text" id="freeTipe" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold outline-none mt-1" value="Foto Wisuda">
+            </div>
+
+            <div>
+                <label class="text-[10px] font-bold text-slate-400 uppercase">Klien / Vendor</label>
+                <input type="text" id="freeVendor" placeholder="Masukkan nama klien/vendor" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold outline-none mt-1">
+            </div>
+
+            <div>
+                <label class="text-[10px] font-bold text-slate-400 uppercase">Lokasi Acara</label>
+                <input type="text" id="freeLokasi" placeholder="Nama Gedung / Kota (Misal: Balairung UGM)" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold outline-none mt-1">
+            </div>
+
+            <div>
+                <label class="text-[10px] font-bold text-slate-400 uppercase">Fee (Rp)</label>
+                <input type="number" id="freeFee" placeholder="Contoh: 225000" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold outline-none mt-1">
+            </div>
+
+            <button onclick="submitFreelanceJob()" id="btnSave" class="w-full py-3.5 bg-slate-900 hover:bg-black text-white font-bold text-xs rounded-xl shadow transition active:scale-[0.99]">
+                Simpan ke Sheets & GCal
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2.5 transition-all duration-300 translate-y-20 opacity-0 pointer-events-none text-xs font-semibold z-50">
+    <i class="fa-solid fa-check text-emerald-400"></i>
+    <span id="toastMsg">Berhasil!</span>
+</div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbymxf1pIrMhVi77zHolsSVW9gsFLni-xs2kX5zTkbDF-OYX-Jwrb6pqD18g7Vu0kyPw/exec";
+
+    let freelanceJobs = [];
+    let currentMonthFilter = 'ALL';
+    let calendarCurrentDate = new Date();
+    let selectedCalendarDate = '';
+
+    const monthNames = [
+        "Januari", "Februari", "Maret", "April",
+        "Mei", "Juni", "Juli", "Agustus",
+        "September", "Oktober", "November", "Desember"
+    ];
+
+    function switchMode(mode) {
+        const isHome = mode === 'home';
+        const isCalendar = mode === 'calendar';
+        const isList = mode === 'list';
+        const isNew = mode === 'new';
+
+        document.getElementById('sectionHome').classList.toggle('hidden', !isHome);
+        document.getElementById('sectionCalendar').classList.toggle('hidden', !isCalendar);
+        document.getElementById('sectionList').classList.toggle('hidden', !isList);
+        document.getElementById('sectionNew').classList.toggle('hidden', !isNew);
+
+        document.getElementById('tabHomeBtn').className = isHome ? getActiveTab() : getInactiveTab();
+        document.getElementById('tabCalendarBtn').className = isCalendar ? getActiveTab() : getInactiveTab();
+        document.getElementById('tabListBtn').className = isList ? getActiveTab() : getInactiveTab();
+        document.getElementById('tabNewBtn').className = isNew ? getActiveTab() : getInactiveTab();
+
+        if (isList) loadFreelanceJobs();
+        if (isCalendar) renderCalendar();
+    }
+
+    function getActiveTab() {
+        return "flex-1 sm:flex-none py-2 px-3 bg-white text-slate-900 font-bold text-xs rounded-lg shadow-sm transition flex items-center justify-center gap-1.5 whitespace-nowrap";
+    }
+
+    function getInactiveTab() {
+        return "flex-1 sm:flex-none py-2 px-3 text-slate-600 hover:text-slate-900 font-bold text-xs rounded-lg transition flex items-center justify-center gap-1.5 whitespace-nowrap";
+    }
+
+    function formatRupiah(num) {
+        return 'Rp' + Number(num || 0).toLocaleString('id-ID');
+    }
+
+    function escapeHTML(value) {
+        return String(value ?? '').replace(/[&<>"']/g, char => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        })[char]);
+    }
+
+    // PARSE TANGGAL GOOGLE SHEETS
+    function parseSheetDateToISO(dateStr) {
+        if (!dateStr) return "";
+
+        if (dateStr instanceof Date && !isNaN(dateStr.getTime())) {
+            const y = dateStr.getFullYear();
+            const m = String(dateStr.getMonth() + 1).padStart(2, '0');
+            const d = String(dateStr.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
         }
-        function getActiveTab() { return "flex-1 sm:flex-none py-2 px-3 bg-white text-slate-900 font-bold text-xs rounded-lg shadow-sm transition flex items-center justify-center gap-1.5 whitespace-nowrap"; }
-        function getInactiveTab() { return "flex-1 sm:flex-none py-2 px-3 text-slate-600 hover:text-slate-900 font-bold text-xs rounded-lg transition flex items-center justify-center gap-1.5 whitespace-nowrap"; }
-        function formatRupiah(num) { return 'Rp' + Number(num || 0).toLocaleString('id-ID'); }
 
-        // Menerima format yyyy-MM-dd, ISO timestamp, dan d-MMM-yyyy dari Google Sheets.
-        function parseSheetDateToISO(dateStr) {
-            if (!dateStr) return "";
-            if (dateStr instanceof Date && !isNaN(dateStr.getTime())) {
-                const y = dateStr.getFullYear(), m = String(dateStr.getMonth() + 1).padStart(2, '0'), d = String(dateStr.getDate()).padStart(2, '0');
-                return `${y}-${m}-${d}`;
-            }
-            const str = String(dateStr).trim();
-            if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
-            if (/^\d{4}-\d{2}-\d{2}T/.test(str)) return str.substring(0, 10);
-            const parts = str.split('-');
-            if (parts.length === 3 && parts[0].length !== 4) {
-                const d = parts[0].padStart(2, '0');
-                const mStr = parts[1].toLowerCase().substring(0, 3);
-                let y = parts[2]; if (y.length === 2) y = '20' + y;
-                const monthMap = {'jan':'01','feb':'02','mar':'03','apr':'04','may':'05','mei':'05','jun':'06','jul':'07','aug':'08','agu':'08','sep':'09','oct':'10','okt':'10','nov':'11','dec':'12','des':'12'};
-                const m = monthMap[mStr];
-                if (m && /^\d{4}$/.test(y) && /^\d{1,2}$/.test(d)) return `${y}-${m}-${d}`;
-            }
-            return str.substring(0, 10);
-        }
+        const str = String(dateStr).trim();
 
-        function cleanDisplayDate(dateStr) {
-            if (!dateStr) return "-";
-            const iso = parseSheetDateToISO(dateStr);
-            if (iso) {
-                const parts = iso.split('-');
-                if (parts.length === 3) {
-                    const mNames = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
-                    return `${parseInt(parts[2], 10)} ${mNames[parseInt(parts[1], 10)-1]} ${parts[0]}`;
-                }
-            }
-            return dateStr;
-        }
+        if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+        if (/^\d{4}-\d{2}-\d{2}T/.test(str)) return str.substring(0, 10);
 
-        async function fetchFreelanceData() {
-            const tbody = document.getElementById('freelanceTableBody');
-            tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 italic"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Memuat data dari Google Sheets...</td></tr>`;
-            try {
-                const res = await fetch(SCRIPT_URL);
-                if (!res.ok) throw new Error('HTTP ' + res.status);
-                const data = await res.json();
-                if (data && data.status === 'success' && data.freelance) {
-                    freelanceJobs = data.freelance.map(j => {
-                        let rawDate = j.tanggal || '';
-                        let cleanDate = rawDate;
-                        let extractedJam = j.jam || '';
-                        if (typeof rawDate === 'string' && rawDate.includes(' ') && !rawDate.includes('T')) {
-                            const parts = rawDate.split(/\s+/);
-                            if (parts.length > 1 && /^\d{1,2}-[A-Za-z]{3}-\d{2,4}$/.test(parts[0])) {
-                                cleanDate = parts[0];
-                                if (!extractedJam) extractedJam = parts.slice(1).join(' ');
-                            }
-                        }
-                        return {...j, tanggal: cleanDate, jam: extractedJam || '-', cleanDateStr: cleanDisplayDate(cleanDate), isoDate: parseSheetDateToISO(cleanDate)};
-                    });
-                    updateMonthFilters();
-                    updateHomeStats();
-                    loadFreelanceJobs();
-                } else {
-                    tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-rose-400 italic">Gagal memuat data dari server.</td></tr>`;
-                }
-            } catch (err) {
-                console.error(err);
-                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-rose-400 italic">Terjadi kesalahan koneksi.</td></tr>`;
-            }
-        }
+        const parts = str.split('-');
 
-        function updateMonthFilters() {
-            const container = document.getElementById('monthFilterContainer');
-            const monthNames = {'01':'Januari','02':'Februari','03':'Maret','04':'April','05':'Mei','06':'Juni','07':'Juli','08':'Agustus','09':'September','10':'Oktober','11':'November','12':'Desember'};
-            const monthsSet = new Set();
-            freelanceJobs.forEach(j => { if (j.isoDate) { const p = j.isoDate.split('-'); if (p.length === 3) monthsSet.add(p[1]); } });
-            let html = `<button onclick="filterByMonth('ALL')" id="filterBtn-ALL" class="px-3 py-1.5 ${currentMonthFilter === 'ALL' ? 'bg-slate-900 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-600'} font-bold text-xs rounded-xl whitespace-nowrap transition">Semua</button>`;
-            Array.from(monthsSet).sort().forEach(m => {
-                html += `<button onclick="filterByMonth('${m}')" id="filterBtn-${m}" class="px-3 py-1.5 ${currentMonthFilter === m ? 'bg-slate-900 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-600'} font-semibold text-xs rounded-xl whitespace-nowrap transition">${monthNames[m] || m}</button>`;
-            });
-            container.innerHTML = html;
-        }
-        function filterByMonth(monthCode) { currentMonthFilter = monthCode; updateMonthFilters(); loadFreelanceJobs(); }
+        if (parts.length === 3 && parts[0].length !== 4) {
+            const d = parts[0].padStart(2, '0');
+            const mStr = parts[1].toLowerCase().substring(0, 3);
+            let y = parts[2];
 
-        function loadFreelanceJobs() {
-            const tbody = document.getElementById('freelanceTableBody');
-            let filteredJobs = freelanceJobs;
-            if (currentMonthFilter !== 'ALL') filteredJobs = freelanceJobs.filter(j => j.isoDate && j.isoDate.split('-')[1] === currentMonthFilter);
-            if (!filteredJobs.length) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 italic">Belum ada riwayat job pada bulan ini.</td></tr>`;
-                return;
-            }
-            tbody.innerHTML = filteredJobs.map(j => `
-                <tr class="hover:bg-slate-50 transition">
-                    <td class="py-3 px-4"><span class="font-semibold text-slate-800 block">${j.cleanDateStr}</span><span class="text-[11px] font-mono text-blue-700">${j.jam} WIB</span></td>
-                    <td class="py-3 px-3 font-bold text-slate-900">${j.tipeJob || 'Foto Wisuda'}</td>
-                    <td class="py-3 px-3 text-slate-700 font-semibold">${j.vendor || '-'}</td>
-                    <td class="py-3 px-3 text-slate-500">${j.lokasi || '-'}</td>
-                    <td class="py-3 px-3 text-right font-bold text-emerald-700">${formatRupiah(j.fee)}</td>
-                </tr>`).join('');
-        }
-        function updateHomeStats() {
-            document.getElementById('statTotalJob').textContent = freelanceJobs.length;
-            document.getElementById('statTotalFee').textContent = formatRupiah(freelanceJobs.reduce((sum,j) => sum + (parseInt(j.fee,10) || 0), 0));
-        }
+            if (y.length === 2) y = '20' + y;
 
-        async function submitFreelanceJob() {
-            const tanggal = document.getElementById('freeTanggal').value;
-            const jam = document.getElementById('freeJam').value.trim() || '08:00 - 17:00';
-            const tipeJob = document.getElementById('freeTipe').value.trim() || 'Foto Wisuda';
-            const vendor = document.getElementById('freeVendor').value.trim();
-            const lokasi = document.getElementById('freeLokasi').value.trim();
-            const fee = document.getElementById('freeFee').value.trim();
-
-            if (!tanggal || !vendor) return alert('Tanggal dan Klien/Vendor wajib diisi!');
-
-            const match = jam.match(/^(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})$/);
-            if (!match) return alert('Format jam harus HH:mm - HH:mm. Contoh: 13:00 - 15:00');
-            const startHour = Number(match[1]), startMinute = Number(match[2]), endHour = Number(match[3]), endMinute = Number(match[4]);
-            if (startHour > 23 || endHour > 23 || startMinute > 59 || endMinute > 59) return alert('Jam tidak valid. Gunakan format 24 jam.');
-            const startValue = startHour * 60 + startMinute, endValue = endHour * 60 + endMinute;
-            if (endValue <= startValue) return alert('Jam selesai harus setelah jam mulai. Untuk sesi lintas tengah malam, pisahkan tanggal acaranya.');
-
-            const btn = document.getElementById('btnSave');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
-
-            const p = tanggal.split('-');
-            const monthNamesShort = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-            const formattedDate = `${parseInt(p[2],10)}-${monthNamesShort[parseInt(p[1],10)-1]}-${p[0]}`;
-            const payload = {
-                action: "new_freelance_job", tanggal: formattedDate, isoDate: tanggal, jam,
-                startTime: `${String(startHour).padStart(2,'0')}:${String(startMinute).padStart(2,'0')}`,
-                endTime: `${String(endHour).padStart(2,'0')}:${String(endMinute).padStart(2,'0')}`,
-                tipeJob, vendor, lokasi: lokasi || '-', fee: Number(fee) || 0
+            const monthMap = {
+                'jan':'01', 'feb':'02', 'mar':'03', 'apr':'04',
+                'may':'05', 'mei':'05', 'jun':'06', 'jul':'07',
+                'aug':'08', 'agu':'08', 'sep':'09', 'oct':'10',
+                'okt':'10', 'nov':'11', 'dec':'12', 'des':'12'
             };
 
-            try {
-                // text/plain menghindari preflight CORS pada Apps Script Web App.
-                await fetch(SCRIPT_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload)});
-                showToast("Permintaan simpan dikirim. Memuat ulang data...");
-                document.getElementById('freeJam').value = '';
-                document.getElementById('freeVendor').value = '';
-                document.getElementById('freeLokasi').value = '';
-                document.getElementById('freeFee').value = '';
-                setTimeout(async () => { await fetchFreelanceData(); switchMode('home'); }, 1800);
-            } catch (err) {
-                alert('Gagal mengirim data: ' + err.message);
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = 'Simpan ke Sheets & GCal';
+            const m = monthMap[mStr];
+
+            if (m && /^\d{4}$/.test(y) && /^\d{1,2}$/.test(d)) {
+                return `${y}-${m}-${d}`;
             }
         }
 
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastMsg').textContent = msg;
-            toast.classList.remove('translate-y-20','opacity-0');
-            setTimeout(() => toast.classList.add('translate-y-20','opacity-0'), 3000);
+        return str.substring(0, 10);
+    }
+
+    function cleanDisplayDate(dateStr) {
+        if (!dateStr) return "-";
+
+        const iso = parseSheetDateToISO(dateStr);
+
+        if (iso) {
+            const parts = iso.split('-');
+
+            if (parts.length === 3) {
+                const mNames = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+                return `${parseInt(parts[2], 10)} ${mNames[parseInt(parts[1], 10)-1]} ${parts[0]}`;
+            }
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            // Hindari toISOString() karena menghasilkan tanggal UTC, bukan tanggal lokal pengguna.
-            const now = new Date();
-            const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-            document.getElementById('freeTanggal').value = today;
-            fetchFreelanceData();
+        return dateStr;
+    }
+
+    // AMBIL DATA DARI GOOGLE SHEETS
+    async function fetchFreelanceData() {
+        const tbody = document.getElementById('freelanceTableBody');
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" class="p-6 text-center text-slate-400 italic">
+                    <i class="fa-solid fa-spinner fa-spin mr-1"></i> Memuat data dari Google Sheets...
+                </td>
+            </tr>`;
+
+        try {
+            const res = await fetch(SCRIPT_URL);
+
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+
+            const data = await res.json();
+
+            if (data && data.status === 'success' && data.freelance) {
+                freelanceJobs = data.freelance.map(j => {
+                    let rawDate = j.tanggal || '';
+                    let cleanDate = rawDate;
+                    let extractedJam = j.jam || '';
+
+                    if (typeof rawDate === 'string' && rawDate.includes(' ') && !rawDate.includes('T')) {
+                        const parts = rawDate.split(/\s+/);
+
+                        if (parts.length > 1 && /^\d{1,2}-[A-Za-z]{3}-\d{2,4}$/.test(parts[0])) {
+                            cleanDate = parts[0];
+                            if (!extractedJam) extractedJam = parts.slice(1).join(' ');
+                        }
+                    }
+
+                    return {
+                        ...j,
+                        tanggal: cleanDate,
+                        jam: extractedJam || '-',
+                        cleanDateStr: cleanDisplayDate(cleanDate),
+                        isoDate: parseSheetDateToISO(cleanDate)
+                    };
+                });
+
+                updateMonthFilters();
+                updateHomeStats();
+                loadFreelanceJobs();
+                renderCalendar();
+            } else {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="p-6 text-center text-rose-400 italic">
+                            Gagal memuat data dari server.
+                        </td>
+                    </tr>`;
+            }
+        } catch (err) {
+            console.error(err);
+
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="p-6 text-center text-rose-400 italic">
+                        Terjadi kesalahan koneksi.
+                    </td>
+                </tr>`;
+        }
+    }
+
+    // DROPDOWN FILTER BULAN DAN TAHUN
+    function updateMonthFilters() {
+        const select = document.getElementById('monthFilterSelect');
+
+        const periods = [...new Set(
+            freelanceJobs
+                .filter(j => /^\d{4}-\d{2}-\d{2}$/.test(j.isoDate))
+                .map(j => j.isoDate.substring(0, 7))
+        )].sort().reverse();
+
+        if (currentMonthFilter !== 'ALL' && !periods.includes(currentMonthFilter)) {
+            currentMonthFilter = 'ALL';
+        }
+
+        let html = `<option value="ALL">Semua Bulan</option>`;
+
+        periods.forEach(period => {
+            const [year, month] = period.split('-');
+            const label = `${monthNames[Number(month) - 1]} ${year}`;
+
+            html += `<option value="${period}">${label}</option>`;
         });
-    </script>
+
+        select.innerHTML = html;
+        select.value = currentMonthFilter;
+    }
+
+    function filterByMonth(period) {
+        currentMonthFilter = period;
+        loadFreelanceJobs();
+    }
+
+    // TABEL DAFTAR JOB
+    function loadFreelanceJobs() {
+        const tbody = document.getElementById('freelanceTableBody');
+
+        let filteredJobs = [...freelanceJobs];
+
+        if (currentMonthFilter !== 'ALL') {
+            filteredJobs = filteredJobs.filter(j =>
+                j.isoDate && j.isoDate.substring(0, 7) === currentMonthFilter
+            );
+        }
+
+        filteredJobs.sort((a, b) => {
+            return (a.isoDate || '').localeCompare(b.isoDate || '');
+        });
+
+        if (!filteredJobs.length) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="p-6 text-center text-slate-400 italic">
+                        Belum ada riwayat job pada periode ini.
+                    </td>
+                </tr>`;
+            return;
+        }
+
+        tbody.innerHTML = filteredJobs.map(j => `
+            <tr class="hover:bg-slate-50 transition">
+                <td class="py-3 px-4">
+                    <span class="font-semibold text-slate-800 block">${escapeHTML(j.cleanDateStr)}</span>
+                    <span class="text-[11px] font-mono text-blue-700">${escapeHTML(j.jam)} WIB</span>
+                </td>
+                <td class="py-3 px-3 font-bold text-slate-900">${escapeHTML(j.tipeJob || 'Foto Wisuda')}</td>
+                <td class="py-3 px-3 text-slate-700 font-semibold">${escapeHTML(j.vendor || '-')}</td>
+                <td class="py-3 px-3 text-slate-500">${escapeHTML(j.lokasi || '-')}</td>
+                <td class="py-3 px-3 text-right font-bold text-emerald-700">${formatRupiah(j.fee)}</td>
+            </tr>
+        `).join('');
+    }
+
+    // STATISTIK HOME
+    function updateHomeStats() {
+        document.getElementById('statTotalJob').textContent = freelanceJobs.length;
+
+        document.getElementById('statTotalFee').textContent = formatRupiah(
+            freelanceJobs.reduce((sum, j) => sum + (parseInt(j.fee, 10) || 0), 0)
+        );
+    }
+
+    // ==========================
+    // KALENDER READ ONLY
+    // ==========================
+
+    function changeCalendarMonth(direction) {
+        calendarCurrentDate = new Date(
+            calendarCurrentDate.getFullYear(),
+            calendarCurrentDate.getMonth() + direction,
+            1
+        );
+
+        selectedCalendarDate = '';
+        renderCalendar();
+    }
+
+    function getLocalISODate(date) {
+        return [
+            date.getFullYear(),
+            String(date.getMonth() + 1).padStart(2, '0'),
+            String(date.getDate()).padStart(2, '0')
+        ].join('-');
+    }
+
+    function renderCalendar() {
+        const grid = document.getElementById('calendarGrid');
+        const title = document.getElementById('calendarMonthTitle');
+
+        if (!grid || !title) return;
+
+        const year = calendarCurrentDate.getFullYear();
+        const month = calendarCurrentDate.getMonth();
+
+        title.textContent = `${monthNames[month]} ${year}`;
+
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        const today = getLocalISODate(new Date());
+
+        // Kelompokkan job berdasarkan tanggal
+        const jobsByDate = {};
+
+        freelanceJobs.forEach(job => {
+            if (!job.isoDate) return;
+
+            if (!jobsByDate[job.isoDate]) {
+                jobsByDate[job.isoDate] = [];
+            }
+
+            jobsByDate[job.isoDate].push(job);
+        });
+
+        let html = '';
+
+        // Ruang kosong sebelum tanggal 1
+        for (let i = 0; i < firstDay; i++) {
+            html += `<div class="calendar-day bg-slate-50/70 border-b border-r border-slate-100"></div>`;
+        }
+
+        // Tanggal dalam bulan
+        for (let day = 1; day <= daysInMonth; day++) {
+            const iso = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const jobs = jobsByDate[iso] || [];
+
+            const isToday = iso === today;
+            const isSelected = iso === selectedCalendarDate;
+            const hasJobs = jobs.length > 0;
+
+            let classes = 'calendar-day border-b border-r border-slate-100 p-1.5 sm:p-2 text-left transition hover:bg-blue-50 ';
+
+            if (isSelected) {
+                classes += 'bg-blue-50 ring-2 ring-inset ring-blue-500 ';
+            } else if (isToday) {
+                classes += 'bg-emerald-50 ';
+            } else {
+                classes += 'bg-white ';
+            }
+
+            const numberClass = isToday
+                ? 'bg-emerald-500 text-white'
+                : isSelected
+                    ? 'bg-blue-600 text-white'
+                    : 'text-slate-700';
+
+            html += `
+                <button type="button"
+                    onclick="selectCalendarDate('${iso}')"
+                    class="${classes}">
+
+                    <div class="flex justify-between items-start gap-1">
+                        <span class="w-6 h-6 flex items-center justify-center rounded-full text-[11px] font-bold ${numberClass}">
+                            ${day}
+                        </span>
+
+                        ${hasJobs ? `
+                            <span class="text-[9px] font-bold text-blue-700 bg-blue-100 rounded-full px-1.5 py-0.5">
+                                ${jobs.length}
+                            </span>
+                        ` : ''}
+                    </div>
+
+                    ${hasJobs ? `
+                        <div class="mt-1.5 space-y-1">
+                            <div class="w-2 h-2 rounded-full bg-blue-600"></div>
+                            <p class="hidden sm:block text-[9px] font-semibold text-slate-600 truncate">
+                                ${escapeHTML(jobs[0].vendor || jobs[0].tipeJob || 'Job Freelance')}
+                            </p>
+                            ${jobs.length > 1 ? `
+                                <p class="hidden sm:block text-[9px] text-slate-400">
+                                    +${jobs.length - 1} lainnya
+                                </p>
+                            ` : ''}
+                        </div>
+                    ` : ''}
+                </button>
+            `;
+        }
+
+        // Ruang kosong setelah tanggal terakhir
+        const totalCells = firstDay + daysInMonth;
+        const remainingCells = (7 - (totalCells % 7)) % 7;
+
+        for (let i = 0; i < remainingCells; i++) {
+            html += `<div class="calendar-day bg-slate-50/70 border-b border-r border-slate-100"></div>`;
+        }
+
+        grid.innerHTML = html;
+
+        if (selectedCalendarDate) {
+            renderCalendarDetails(selectedCalendarDate);
+        } else {
+            const firstJobDate = Object.keys(jobsByDate)
+                .filter(date => date.startsWith(`${year}-${String(month + 1).padStart(2, '0')}`))
+                .sort()[0];
+
+            if (firstJobDate) {
+                selectedCalendarDate = firstJobDate;
+                renderCalendar();
+                return;
+            }
+
+            renderCalendarDetails('');
+        }
+    }
+
+    function selectCalendarDate(iso) {
+        selectedCalendarDate = iso;
+        renderCalendar();
+    }
+
+    function renderCalendarDetails(iso) {
+        const title = document.getElementById('selectedCalendarTitle');
+        const container = document.getElementById('calendarJobDetails');
+
+        if (!iso) {
+            title.textContent = 'Belum ada tanggal dipilih';
+
+            container.innerHTML = `
+                <div>
+                    <h4 id="selectedCalendarTitle" class="text-xs font-bold text-slate-900">Belum ada tanggal dipilih</h4>
+                    <p class="text-[10px] text-slate-500 mt-1">
+                        Pilih tanggal pada kalender untuk melihat detail jadwal.
+                    </p>
+                </div>`;
+            return;
+        }
+
+        const jobs = freelanceJobs.filter(j => j.isoDate === iso);
+
+        const dateObj = new Date(iso + 'T00:00:00');
+
+        const formattedDate = dateObj.toLocaleDateString('id-ID', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+
+        if (!jobs.length) {
+            container.innerHTML = `
+                <div>
+                    <h4 id="selectedCalendarTitle" class="text-xs font-bold text-slate-900">${formattedDate}</h4>
+                    <p class="text-[11px] text-slate-500 mt-2">
+                        <i class="fa-regular fa-calendar-check mr-1"></i>
+                        Tidak ada jadwal freelance pada tanggal ini.
+                    </p>
+                </div>`;
+            return;
+        }
+
+        let html = `
+            <div class="flex justify-between items-center gap-2">
+                <div>
+                    <h4 id="selectedCalendarTitle" class="text-xs font-bold text-slate-900">${formattedDate}</h4>
+                    <p class="text-[10px] text-slate-500 mt-1">${jobs.length} jadwal freelance</p>
+                </div>
+
+                <span class="text-[10px] font-bold bg-blue-100 text-blue-700 px-2.5 py-1 rounded-lg">
+                    ${jobs.length} Job
+                </span>
+            </div>
+
+            <div class="space-y-2">
+        `;
+
+        jobs.forEach((job, index) => {
+            html += `
+                <div class="bg-white border border-slate-200 rounded-xl p-3 space-y-2">
+                    <div class="flex justify-between items-start gap-2">
+                        <div>
+                            <p class="text-xs font-bold text-slate-900">
+                                ${escapeHTML(job.vendor || 'Tanpa nama')}
+                            </p>
+                            <p class="text-[10px] text-slate-500 mt-0.5">
+                                ${escapeHTML(job.tipeJob || 'Foto Wisuda')}
+                            </p>
+                        </div>
+
+                        <span class="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded-lg whitespace-nowrap">
+                            ${escapeHTML(job.jam || '-')}
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 text-[10px]">
+                        <div class="text-slate-500">
+                            <i class="fa-solid fa-location-dot mr-1 text-slate-400"></i>
+                            ${escapeHTML(job.lokasi || '-')}
+                        </div>
+
+                        <div class="text-right font-bold text-emerald-700">
+                            ${formatRupiah(job.fee)}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        html += '</div>';
+
+        container.innerHTML = html;
+    }
+
+    // ==========================
+    // SIMPAN JOB - TETAP SAMA
+    // ==========================
+
+    async function submitFreelanceJob() {
+        const tanggal = document.getElementById('freeTanggal').value;
+        const jam = document.getElementById('freeJam').value.trim() || '08:00 - 17:00';
+        const tipeJob = document.getElementById('freeTipe').value.trim() || 'Foto Wisuda';
+        const vendor = document.getElementById('freeVendor').value.trim();
+        const lokasi = document.getElementById('freeLokasi').value.trim();
+        const fee = document.getElementById('freeFee').value.trim();
+
+        if (!tanggal || !vendor) {
+            return alert('Tanggal dan Klien/Vendor wajib diisi!');
+        }
+
+        const match = jam.match(/^(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})$/);
+
+        if (!match) {
+            return alert('Format jam harus HH:mm - HH:mm. Contoh: 13:00 - 15:00');
+        }
+
+        const startHour = Number(match[1]);
+        const startMinute = Number(match[2]);
+        const endHour = Number(match[3]);
+        const endMinute = Number(match[4]);
+
+        if (startHour > 23 || endHour > 23 || startMinute > 59 || endMinute > 59) {
+            return alert('Jam tidak valid. Gunakan format 24 jam.');
+        }
+
+        const startValue = startHour * 60 + startMinute;
+        const endValue = endHour * 60 + endMinute;
+
+        if (endValue <= startValue) {
+            return alert('Jam selesai harus setelah jam mulai. Untuk sesi lintas tengah malam, pisahkan tanggal acaranya.');
+        }
+
+        const btn = document.getElementById('btnSave');
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+
+        const p = tanggal.split('-');
+        const monthNamesShort = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+        const formattedDate = `${parseInt(p[2],10)}-${monthNamesShort[parseInt(p[1],10)-1]}-${p[0]}`;
+
+        const payload = {
+            action: "new_freelance_job",
+            tanggal: formattedDate,
+            isoDate: tanggal,
+            jam,
+            startTime: `${String(startHour).padStart(2,'0')}:${String(startMinute).padStart(2,'0')}`,
+            endTime: `${String(endHour).padStart(2,'0')}:${String(endMinute).padStart(2,'0')}`,
+            tipeJob,
+            vendor,
+            lokasi: lokasi || '-',
+            fee: Number(fee) || 0
+        };
+
+        try {
+            // text/plain menghindari preflight CORS pada Apps Script Web App.
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {'Content-Type':'text/plain;charset=utf-8'},
+                body: JSON.stringify(payload)
+            });
+
+            showToast("Permintaan simpan dikirim. Memuat ulang data...");
+
+            document.getElementById('freeJam').value = '';
+            document.getElementById('freeVendor').value = '';
+            document.getElementById('freeLokasi').value = '';
+            document.getElementById('freeFee').value = '';
+
+            setTimeout(async () => {
+                await fetchFreelanceData();
+                switchMode('home');
+            }, 1800);
+
+        } catch (err) {
+            alert('Gagal mengirim data: ' + err.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = 'Simpan ke Sheets & GCal';
+        }
+    }
+
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+
+        document.getElementById('toastMsg').textContent = msg;
+
+        toast.classList.remove('translate-y-20', 'opacity-0');
+
+        setTimeout(() => {
+            toast.classList.add('translate-y-20', 'opacity-0');
+        }, 3000);
+    }
+
+    // INISIALISASI
+    window.addEventListener('DOMContentLoaded', () => {
+        // Menggunakan tanggal lokal, bukan UTC.
+        const now = new Date();
+
+        const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+
+        document.getElementById('freeTanggal').value = today;
+
+        calendarCurrentDate = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        fetchFreelanceData();
+    });
+</script>
 </body>
 </html>
