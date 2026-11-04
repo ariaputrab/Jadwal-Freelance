@@ -95,14 +95,9 @@
                 </button>
             </div>
 
-            <!-- Tab Filter Per Bulan -->
+            <!-- Tab Filter Per Bulan Dinamis -->
             <div id="monthFilterContainer" class="flex items-center gap-1.5 overflow-x-auto touch-scroll pb-1">
                 <button onclick="filterByMonth('ALL')" id="filterBtn-ALL" class="px-3 py-1.5 bg-slate-900 text-white font-bold text-xs rounded-xl whitespace-nowrap transition">Semua</button>
-                <button onclick="filterByMonth('08')" id="filterBtn-08" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-xs rounded-xl whitespace-nowrap transition">Agustus</button>
-                <button onclick="filterByMonth('09')" id="filterBtn-09" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-xs rounded-xl whitespace-nowrap transition">September</button>
-                <button onclick="filterByMonth('10')" id="filterBtn-10" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-xs rounded-xl whitespace-nowrap transition">Oktober</button>
-                <button onclick="filterByMonth('11')" id="filterBtn-11" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-xs rounded-xl whitespace-nowrap transition">November</button>
-                <button onclick="filterByMonth('12')" id="filterBtn-12" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-xs rounded-xl whitespace-nowrap transition">Desember</button>
             </div>
 
             <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
@@ -211,6 +206,58 @@
             return 'Rp' + Number(num || 0).toLocaleString('id-ID');
         }
 
+        function parseSheetDateToISO(dateStr) {
+            if (!dateStr) return "";
+            if (dateStr instanceof Date) {
+                const y = dateStr.getFullYear();
+                const m = String(dateStr.getMonth() + 1).padStart(2, '0');
+                const d = String(dateStr.getDate()).padStart(2, '0');
+                return `${y}-${m}-${d}`;
+            }
+            
+            const str = String(dateStr).trim();
+            
+            if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
+                return str.substring(0, 10);
+            }
+
+            if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(str)) {
+                const parts = str.split('/');
+                const d = parts[0].padStart(2, '0');
+                const m = parts[1].padStart(2, '0');
+                const y = parts[2];
+                return `${y}-${m}-${d}`;
+            }
+
+            if (str.includes('-')) {
+                const parts = str.split('-');
+                if (parts.length === 3) {
+                    const d = parts[0].padStart(2, '0');
+                    const mStr = parts[1].toLowerCase().substring(0, 3);
+                    let y = parts[2];
+                    if (y.length === 2) y = '20' + y;
+                    
+                    const monthMap = { 
+                        'jan':'01', 'feb':'02', 'mar':'03', 'apr':'04', 'may':'05', 'mei':'05', 
+                        'jun':'06', 'jul':'07', 'aug':'08', 'agu':'08', 'sep':'09', 'oct':'10', 
+                        'okt':'10', 'nov':'11', 'dec':'12', 'des':'12' 
+                    };
+                    const m = monthMap[mStr] || '01';
+                    return `${y}-${m}-${d}`;
+                }
+            }
+
+            const parsed = new Date(str);
+            if (!isNaN(parsed.getTime())) {
+                const y = parsed.getFullYear();
+                const m = String(parsed.getMonth() + 1).padStart(2, '0');
+                const d = String(parsed.getDate()).padStart(2, '0');
+                return `${y}-${m}-${d}`;
+            }
+
+            return "";
+        }
+
         function cleanDisplayDate(dateStr) {
             if (!dateStr) return "-";
             const iso = parseSheetDateToISO(dateStr);
@@ -239,6 +286,7 @@
                         isoDate: parseSheetDateToISO(j.tanggal)
                     }));
                     
+                    updateMonthFilters();
                     updateHomeStats();
                     loadFreelanceJobs();
                 } else {
@@ -250,53 +298,40 @@
             }
         }
 
-        function parseSheetDateToISO(dateStr) {
-            if (!dateStr) return "";
-            if (dateStr instanceof Date) {
-                const y = dateStr.getFullYear();
-                const m = String(dateStr.getMonth() + 1).padStart(2, '0');
-                const d = String(dateStr.getDate()).padStart(2, '0');
-                return `${y}-${m}-${d}`;
-            }
-            const str = String(dateStr).trim();
-            if (str.includes('T')) {
-                return str.split('T')[0];
-            }
-            if (str.includes('-')) {
-                const parts = str.split('-');
-                if (parts.length === 3) {
-                    if (parts[0].length === 4) {
-                        return str.substring(0, 10);
+        function updateMonthFilters() {
+            const container = document.getElementById('monthFilterContainer');
+            
+            const monthsSet = new Set();
+            freelanceJobs.forEach(j => {
+                if (j.isoDate) {
+                    const parts = j.isoDate.split('-');
+                    if (parts.length >= 2) {
+                        monthsSet.add(parts[1]);
                     }
-                    const d = parts[0].padStart(2, '0');
-                    const mStr = parts[1].toLowerCase().substring(0, 3);
-                    let y = parts[2];
-                    if (y.length === 2) y = '20' + y;
-                    
-                    const monthMap = { 
-                        'jan':'01', 'feb':'02', 'mar':'03', 'apr':'04', 'may':'05', 'mei':'05', 
-                        'jun':'06', 'jul':'07', 'aug':'08', 'agu':'08', 'sep':'09', 'oct':'10', 
-                        'okt':'10', 'nov':'11', 'dec':'12', 'des':'12' 
-                    };
-                    const m = monthMap[mStr] || '11';
-                    return `${y}-${m}-${d}`;
                 }
-            }
-            return "";
+            });
+
+            const sortedMonths = Array.from(monthsSet).sort();
+            const monthNamesID = {
+                '01': 'Januari', '02': 'Februari', '03': 'Maret', '04': 'April',
+                '05': 'Mei', '06': 'Juni', '07': 'Juli', '08': 'Agustus',
+                '09': 'September', '10': 'Oktober', '11': 'November', '12': 'Desember'
+            };
+
+            let html = `<button onclick="filterByMonth('ALL')" id="filterBtn-ALL" class="px-3 py-1.5 ${currentMonthFilter === 'ALL' ? 'bg-slate-900 text-white font-bold' : 'bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold'} text-xs rounded-xl whitespace-nowrap transition">Semua</button>`;
+            
+            sortedMonths.forEach(mCode => {
+                const mName = monthNamesID[mCode] || mCode;
+                const isActive = currentMonthFilter === mCode;
+                html += `<button onclick="filterByMonth('${mCode}')" id="filterBtn-${mCode}" class="px-3 py-1.5 ${isActive ? 'bg-slate-900 text-white font-bold' : 'bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold'} text-xs rounded-xl whitespace-nowrap transition">${mName}</button>`;
+            });
+
+            container.innerHTML = html;
         }
 
         function filterByMonth(monthCode) {
             currentMonthFilter = monthCode;
-            
-            const buttons = document.querySelectorAll('#monthFilterContainer button');
-            buttons.forEach(btn => {
-                btn.className = "px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-xs rounded-xl whitespace-nowrap transition";
-            });
-            const activeBtn = document.getElementById(`filterBtn-${monthCode}`);
-            if (activeBtn) {
-                activeBtn.className = "px-3 py-1.5 bg-slate-900 text-white font-bold text-xs rounded-xl whitespace-nowrap transition";
-            }
-
+            updateMonthFilters();
             loadFreelanceJobs();
         }
 
@@ -322,11 +357,11 @@
                     <tr class="hover:bg-slate-50 transition">
                         <td class="py-3 px-4">
                             <span class="font-semibold text-slate-800 block">${j.cleanDateStr}</span>
-                            <span class="text-[11px] font-mono text-blue-700">${j.jam} WIB</span>
+                            <span class="text-[11px] font-mono text-blue-700">${j.jam || '-'} WIB</span>
                         </td>
-                        <td class="py-3 px-3 font-bold text-slate-900">Foto Wisuda</td>
+                        <td class="py-3 px-3 font-bold text-slate-900">${j.tipeJob || 'Foto Wisuda'}</td>
                         <td class="py-3 px-3 text-slate-700 font-semibold">${j.vendor || '-'}</td>
-                        <td class="py-3 px-3 text-slate-500">${j.lokasi}</td>
+                        <td class="py-3 px-3 text-slate-500">${j.lokasi || '-'}</td>
                         <td class="py-3 px-3 text-right font-bold text-emerald-700">${formatRupiah(j.fee)}</td>
                     </tr>
                 `;
@@ -341,7 +376,7 @@
 
         async function submitFreelanceJob() {
             const tanggal = document.getElementById('freeTanggal').value;
-            const jam = document.getElementById('freeJam').value.trim() || '08:00 - Selesai';
+            const jamRaw = document.getElementById('freeJam').value.trim() || '08:00 - Selesai';
             const tipeJob = document.getElementById('freeTipe').value.trim() || 'Foto Wisuda';
             const vendor = document.getElementById('freeVendor').value.trim();
             const lokasi = document.getElementById('freeLokasi').value.trim();
@@ -355,6 +390,26 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
 
+            // Ekstrak jam mulai dan jam selesai jika formatnya "HH:MM - HH:MM"
+            let startTime = "08:00";
+            let endTime = "17:00";
+            const timeParts = jamRaw.split('-');
+            if (timeParts.length >= 2) {
+                const s = timeParts[0].trim();
+                const e = timeParts[1].trim();
+                if (/^\d{2}:\d{2}$/.test(s)) startTime = s;
+                if (/^\d{2}:\d{2}$/.test(e)) endTime = e;
+            } else {
+                const s = timeParts[0].trim();
+                if (/^\d{2}:\d{2}$/.test(s)) {
+                    startTime = s;
+                    // Default durasi 2 jam jika hanya ada 1 waktu
+                    let [h, m] = s.split(':').map(Number);
+                    h = (h + 2) % 24;
+                    endTime = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+                }
+            }
+
             const parts = tanggal.split('-');
             const monthNamesShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
             const formattedDate = `${parseInt(parts[2], 10)}-${monthNamesShort[parseInt(parts[1], 10)-1]}-${parts[0]}`;
@@ -363,7 +418,9 @@
                 action: "new_freelance_job",
                 tanggal: formattedDate,
                 isoDate: tanggal,
-                jam: jam,
+                jam: jamRaw,
+                startTime: startTime,
+                endTime: endTime,
                 tipeJob: tipeJob,
                 vendor: vendor,
                 lokasi: lokasi || '-',
