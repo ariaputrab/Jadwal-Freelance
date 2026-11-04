@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -95,7 +94,6 @@
 
     <!-- KALENDER READ ONLY -->
     <div id="sectionCalendar" class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5 hidden">
-
         <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-slate-100 pb-4">
             <div>
                 <h3 class="text-sm font-bold text-slate-900">
@@ -162,11 +160,6 @@
                 <p class="text-[10px] text-slate-500 mt-1">Detail jadwal pada tanggal yang dipilih akan tampil di sini.</p>
             </div>
         </div>
-
-        <p class="text-[10px] text-slate-400 text-center">
-            <i class="fa-solid fa-eye mr-1"></i>
-            Kalender hanya untuk melihat jadwal. Pengelolaan job dilakukan melalui menu Tambah Job.
-        </p>
     </div>
 
     <!-- DAFTAR JOB -->
@@ -201,23 +194,29 @@
                             <th class="py-3 px-3">Klien / Vendor</th>
                             <th class="py-3 px-3">Lokasi</th>
                             <th class="py-3 px-3 text-right">Fee (Rp)</th>
+                            <th class="py-3 px-3 text-center">Aksi</th>
                         </tr>
                     </thead>
 
                     <tbody id="freelanceTableBody" class="divide-y divide-slate-100 text-xs text-slate-700 bg-white">
-                        <tr><td colspan="5" class="p-6 text-center text-slate-400 italic">Memuat data dari Google Sheets...</td></tr>
+                        <tr><td colspan="6" class="p-6 text-center text-slate-400 italic">Memuat data dari Google Sheets...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- TAMBAH JOB -->
+    <!-- TAMBAH / EDIT JOB (MODUS DINAMIS) -->
     <div id="sectionNew" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm max-w-xl mx-auto space-y-4 hidden">
-        <div class="border-b border-slate-100 pb-3">
-            <h3 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-circle-plus text-blue-600"></i> Tambah Jadwal Freelance Baru</h3>
-            <p class="text-xs text-slate-500 mt-0.5">Data akan otomatis masuk ke Google Sheets & Google Calendar.</p>
+        <div class="border-b border-slate-100 pb-3 flex justify-between items-center">
+            <div>
+                <h3 id="formTitle" class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-circle-plus text-blue-600"></i> Tambah Jadwal Freelance Baru</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Data akan otomatis tersinkronisasi ke Google Sheets & Google Calendar.</p>
+            </div>
+            <button id="btnCancelEdit" onclick="cancelEditMode()" class="hidden text-xs text-rose-600 font-semibold hover:underline">Batal Edit</button>
         </div>
+
+        <input type="hidden" id="editRowIndex" value="">
 
         <div class="space-y-3 text-xs">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -272,6 +271,7 @@
     let currentMonthFilter = 'ALL';
     let calendarCurrentDate = new Date();
     let selectedCalendarDate = '';
+    let isEditMode = false;
 
     const monthNames = [
         "Januari", "Februari", "Maret", "April",
@@ -284,6 +284,10 @@
         const isCalendar = mode === 'calendar';
         const isList = mode === 'list';
         const isNew = mode === 'new';
+
+        if (!isNew && isEditMode) {
+            cancelEditMode();
+        }
 
         document.getElementById('sectionHome').classList.toggle('hidden', !isHome);
         document.getElementById('sectionCalendar').classList.toggle('hidden', !isCalendar);
@@ -321,7 +325,6 @@
         })[char]);
     }
 
-    // PARSE TANGGAL GOOGLE SHEETS
     function parseSheetDateToISO(dateStr) {
         if (!dateStr) return "";
 
@@ -380,13 +383,12 @@
         return dateStr;
     }
 
-    // AMBIL DATA DARI GOOGLE SHEETS
     async function fetchFreelanceData() {
         const tbody = document.getElementById('freelanceTableBody');
 
         tbody.innerHTML = `
             <tr>
-                <td colspan="5" class="p-6 text-center text-slate-400 italic">
+                <td colspan="6" class="p-6 text-center text-slate-400 italic">
                     <i class="fa-solid fa-spinner fa-spin mr-1"></i> Memuat data dari Google Sheets...
                 </td>
             </tr>`;
@@ -429,24 +431,22 @@
             } else {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="5" class="p-6 text-center text-rose-400 italic">
+                        <td colspan="6" class="p-6 text-center text-rose-400 italic">
                             Gagal memuat data dari server.
                         </td>
                     </tr>`;
             }
         } catch (err) {
             console.error(err);
-
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="5" class="p-6 text-center text-rose-400 italic">
+                    <td colspan="6" class="p-6 text-center text-rose-400 italic">
                         Terjadi kesalahan koneksi.
                     </td>
                 </tr>`;
         }
     }
 
-    // DROPDOWN FILTER BULAN DAN TAHUN
     function updateMonthFilters() {
         const select = document.getElementById('monthFilterSelect');
 
@@ -478,7 +478,6 @@
         loadFreelanceJobs();
     }
 
-    // TABEL DAFTAR JOB
     function loadFreelanceJobs() {
         const tbody = document.getElementById('freelanceTableBody');
 
@@ -497,7 +496,7 @@
         if (!filteredJobs.length) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="5" class="p-6 text-center text-slate-400 italic">
+                    <td colspan="6" class="p-6 text-center text-slate-400 italic">
                         Belum ada riwayat job pada periode ini.
                     </td>
                 </tr>`;
@@ -514,17 +513,82 @@
                 <td class="py-3 px-3 text-slate-700 font-semibold">${escapeHTML(j.vendor || '-')}</td>
                 <td class="py-3 px-3 text-slate-500">${escapeHTML(j.lokasi || '-')}</td>
                 <td class="py-3 px-3 text-right font-bold text-emerald-700">${formatRupiah(j.fee)}</td>
+                <td class="py-3 px-3 text-center space-x-1">
+                    <button onclick="openEditJob(${j.rowIndex})" class="p-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition" title="Edit Job">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button onclick="deleteJob(${j.rowIndex})" class="p-1.5 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100 transition" title="Hapus Job">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </td>
             </tr>
         `).join('');
     }
 
-    // STATISTIK HOME
     function updateHomeStats() {
         document.getElementById('statTotalJob').textContent = freelanceJobs.length;
 
         document.getElementById('statTotalFee').textContent = formatRupiah(
             freelanceJobs.reduce((sum, j) => sum + (parseInt(j.fee, 10) || 0), 0)
         );
+    }
+
+    // ==========================
+    // EDIT & DELETE HANDLERS
+    // ==========================
+
+    function openEditJob(rowIndex) {
+        const job = freelanceJobs.find(j => j.rowIndex === rowIndex);
+        if (!job) return alert("Data job tidak ditemukan.");
+
+        isEditMode = true;
+        document.getElementById('editRowIndex').value = job.rowIndex;
+        document.getElementById('formTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-blue-600"></i> Edit Jadwal Freelance`;
+        document.getElementById('btnSave').textContent = "Perbarui Jadwal";
+        document.getElementById('btnCancelEdit').classList.remove('hidden');
+
+        document.getElementById('freeTanggal').value = job.isoDate || '';
+        document.getElementById('freeJam').value = job.jam || '';
+        document.getElementById('freeTipe').value = job.tipeJob || 'Foto Wisuda';
+        document.getElementById('freeVendor').value = job.vendor || '';
+        document.getElementById('freeLokasi').value = job.lokasi || '';
+        document.getElementById('freeFee').value = job.fee || 0;
+
+        switchMode('new');
+    }
+
+    function cancelEditMode() {
+        isEditMode = false;
+        document.getElementById('editRowIndex').value = '';
+        document.getElementById('formTitle').innerHTML = `<i class="fa-solid fa-circle-plus text-blue-600"></i> Tambah Jadwal Freelance Baru`;
+        document.getElementById('btnSave').textContent = "Simpan ke Sheets & GCal";
+        document.getElementById('btnCancelEdit').classList.add('hidden');
+
+        const now = new Date();
+        const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+        document.getElementById('freeTanggal').value = today;
+        document.getElementById('freeJam').value = '';
+        document.getElementById('freeVendor').value = '';
+        document.getElementById('freeLokasi').value = '';
+        document.getElementById('freeFee').value = '';
+    }
+
+    async function deleteJob(rowIndex) {
+        if (!confirm("Apakah Anda yakin ingin menghapus job ini? Data di Google Sheets dan Google Calendar akan ikut terhapus.")) return;
+
+        try {
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {'Content-Type':'text/plain;charset=utf-8'},
+                body: JSON.stringify({ action: "delete_freelance_job", rowIndex: rowIndex })
+            });
+
+            showToast("Job berhasil dihapus. Memuat ulang data...");
+            setTimeout(() => fetchFreelanceData(), 1500);
+        } catch (err) {
+            alert("Gagal menghapus job: " + err.message);
+        }
     }
 
     // ==========================
@@ -566,7 +630,6 @@
 
         const today = getLocalISODate(new Date());
 
-        // Kelompokkan job berdasarkan tanggal
         const jobsByDate = {};
 
         freelanceJobs.forEach(job => {
@@ -581,12 +644,10 @@
 
         let html = '';
 
-        // Ruang kosong sebelum tanggal 1
         for (let i = 0; i < firstDay; i++) {
             html += `<div class="calendar-day bg-slate-50/70 border-b border-r border-slate-100"></div>`;
         }
 
-        // Tanggal dalam bulan
         for (let day = 1; day <= daysInMonth; day++) {
             const iso = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             const jobs = jobsByDate[iso] || [];
@@ -645,7 +706,6 @@
             `;
         }
 
-        // Ruang kosong setelah tanggal terakhir
         const totalCells = firstDay + daysInMonth;
         const remainingCells = (7 - (totalCells % 7)) % 7;
 
@@ -682,20 +742,15 @@
         const container = document.getElementById('calendarJobDetails');
 
         if (!iso) {
-            title.textContent = 'Belum ada tanggal dipilih';
-
             container.innerHTML = `
                 <div>
-                    <h4 id="selectedCalendarTitle" class="text-xs font-bold text-slate-900">Belum ada tanggal dipilih</h4>
-                    <p class="text-[10px] text-slate-500 mt-1">
-                        Pilih tanggal pada kalender untuk melihat detail jadwal.
-                    </p>
+                    <h4 class="text-xs font-bold text-slate-900">Belum ada tanggal dipilih</h4>
+                    <p class="text-[10px] text-slate-500 mt-1">Pilih tanggal pada kalender untuk melihat detail jadwal.</p>
                 </div>`;
             return;
         }
 
         const jobs = freelanceJobs.filter(j => j.isoDate === iso);
-
         const dateObj = new Date(iso + 'T00:00:00');
 
         const formattedDate = dateObj.toLocaleDateString('id-ID', {
@@ -708,10 +763,9 @@
         if (!jobs.length) {
             container.innerHTML = `
                 <div>
-                    <h4 id="selectedCalendarTitle" class="text-xs font-bold text-slate-900">${formattedDate}</h4>
+                    <h4 class="text-xs font-bold text-slate-900">${formattedDate}</h4>
                     <p class="text-[11px] text-slate-500 mt-2">
-                        <i class="fa-regular fa-calendar-check mr-1"></i>
-                        Tidak ada jadwal freelance pada tanggal ini.
+                        <i class="fa-regular fa-calendar-check mr-1"></i> Tidak ada jadwal freelance pada tanggal ini.
                     </p>
                 </div>`;
             return;
@@ -720,42 +774,32 @@
         let html = `
             <div class="flex justify-between items-center gap-2">
                 <div>
-                    <h4 id="selectedCalendarTitle" class="text-xs font-bold text-slate-900">${formattedDate}</h4>
+                    <h4 class="text-xs font-bold text-slate-900">${formattedDate}</h4>
                     <p class="text-[10px] text-slate-500 mt-1">${jobs.length} jadwal freelance</p>
                 </div>
-
                 <span class="text-[10px] font-bold bg-blue-100 text-blue-700 px-2.5 py-1 rounded-lg">
                     ${jobs.length} Job
                 </span>
             </div>
-
             <div class="space-y-2">
         `;
 
-        jobs.forEach((job, index) => {
+        jobs.forEach((job) => {
             html += `
                 <div class="bg-white border border-slate-200 rounded-xl p-3 space-y-2">
                     <div class="flex justify-between items-start gap-2">
                         <div>
-                            <p class="text-xs font-bold text-slate-900">
-                                ${escapeHTML(job.vendor || 'Tanpa nama')}
-                            </p>
-                            <p class="text-[10px] text-slate-500 mt-0.5">
-                                ${escapeHTML(job.tipeJob || 'Foto Wisuda')}
-                            </p>
+                            <p class="text-xs font-bold text-slate-900">${escapeHTML(job.vendor || 'Tanpa nama')}</p>
+                            <p class="text-[10px] text-slate-500 mt-0.5">${escapeHTML(job.tipeJob || 'Foto Wisuda')}</p>
                         </div>
-
                         <span class="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded-lg whitespace-nowrap">
                             ${escapeHTML(job.jam || '-')}
                         </span>
                     </div>
-
                     <div class="grid grid-cols-2 gap-2 text-[10px]">
                         <div class="text-slate-500">
-                            <i class="fa-solid fa-location-dot mr-1 text-slate-400"></i>
-                            ${escapeHTML(job.lokasi || '-')}
+                            <i class="fa-solid fa-location-dot mr-1 text-slate-400"></i> ${escapeHTML(job.lokasi || '-')}
                         </div>
-
                         <div class="text-right font-bold text-emerald-700">
                             ${formatRupiah(job.fee)}
                         </div>
@@ -765,12 +809,11 @@
         });
 
         html += '</div>';
-
         container.innerHTML = html;
     }
 
     // ==========================
-    // SIMPAN JOB - TETAP SAMA
+    // SIMPAN / PERBARUI JOB
     // ==========================
 
     async function submitFreelanceJob() {
@@ -780,6 +823,7 @@
         const vendor = document.getElementById('freeVendor').value.trim();
         const lokasi = document.getElementById('freeLokasi').value.trim();
         const fee = document.getElementById('freeFee').value.trim();
+        const editRowIndex = document.getElementById('editRowIndex').value;
 
         if (!tanggal || !vendor) {
             return alert('Tanggal dan Klien/Vendor wajib diisi!');
@@ -804,21 +848,20 @@
         const endValue = endHour * 60 + endMinute;
 
         if (endValue <= startValue) {
-            return alert('Jam selesai harus setelah jam mulai. Untuk sesi lintas tengah malam, pisahkan tanggal acaranya.');
+            return alert('Jam selesai harus setelah jam mulai.');
         }
 
         const btn = document.getElementById('btnSave');
-
         btn.disabled = true;
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
 
         const p = tanggal.split('-');
         const monthNamesShort = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-
         const formattedDate = `${parseInt(p[2],10)}-${monthNamesShort[parseInt(p[1],10)-1]}-${p[0]}`;
 
         const payload = {
-            action: "new_freelance_job",
+            action: isEditMode ? "edit_freelance_job" : "new_freelance_job",
+            rowIndex: editRowIndex ? parseInt(editRowIndex, 10) : undefined,
             tanggal: formattedDate,
             isoDate: tanggal,
             jam,
@@ -831,7 +874,6 @@
         };
 
         try {
-            // text/plain menghindari preflight CORS pada Apps Script Web App.
             await fetch(SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
@@ -839,7 +881,9 @@
                 body: JSON.stringify(payload)
             });
 
-            showToast("Permintaan simpan dikirim. Memuat ulang data...");
+            showToast(isEditMode ? "Perubahan berhasil disimpan!" : "Job baru berhasil dicatat!");
+            
+            if (isEditMode) cancelEditMode();
 
             document.getElementById('freeJam').value = '';
             document.getElementById('freeVendor').value = '';
@@ -848,22 +892,20 @@
 
             setTimeout(async () => {
                 await fetchFreelanceData();
-                switchMode('home');
+                switchMode('list');
             }, 1800);
 
         } catch (err) {
             alert('Gagal mengirim data: ' + err.message);
         } finally {
             btn.disabled = false;
-            btn.innerHTML = 'Simpan ke Sheets & GCal';
+            btn.innerHTML = isEditMode ? "Perbarui Jadwal" : "Simpan ke Sheets & GCal";
         }
     }
 
     function showToast(msg) {
         const toast = document.getElementById('toast');
-
         document.getElementById('toastMsg').textContent = msg;
-
         toast.classList.remove('translate-y-20', 'opacity-0');
 
         setTimeout(() => {
@@ -871,15 +913,11 @@
         }, 3000);
     }
 
-    // INISIALISASI
     window.addEventListener('DOMContentLoaded', () => {
-        // Menggunakan tanggal lokal, bukan UTC.
         const now = new Date();
-
         const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
 
         document.getElementById('freeTanggal').value = today;
-
         calendarCurrentDate = new Date(now.getFullYear(), now.getMonth(), 1);
 
         fetchFreelanceData();
