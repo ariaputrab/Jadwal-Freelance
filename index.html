@@ -24,7 +24,7 @@
                         <i class="fa-solid fa-calendar-check"></i>
                     </div>
                     <div>
-                        <h1 class="text-base font-bold text-slate-900 leading-tight">Freelance Planner</h1>
+                        <h1 class="text-base font-bold text-slate-900 leading-tight">VIVIDLENS GRADUATION</h1>
                         <p class="text-xs text-slate-500">Raihan Aria • Jadwal & Keuangan</p>
                     </div>
                 </div>
@@ -55,7 +55,7 @@
                 <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-1">
                     <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Job Tersimpan</span>
                     <span id="statTotalJob" class="text-2xl font-bold text-slate-900">0</span>
-                    <span class="text-[10px] text-slate-500 block">Wedding, Wisuda, Lamaran, dll</span>
+                    <span class="text-[10px] text-slate-500 block">Foto Wisuda, dll</span>
                 </div>
                 <div class="bg-white p-4 rounded-2xl border border-emerald-200 bg-emerald-50/30 shadow-sm space-y-1">
                     <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Total Fee / Pendapatan</span>
@@ -144,7 +144,7 @@
                 </div>
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 uppercase">Tipe Job</label>
-                    <input type="text" id="freeTipe" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold outline-none mt-1" value="Wisuda VividLens (Bronze)">
+                    <input type="text" id="freeTipe" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold outline-none mt-1" value="Foto Wisuda">
                 </div>
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 uppercase">Klien / Vendor</label>
@@ -152,7 +152,7 @@
                 </div>
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 uppercase">Lokasi Acara</label>
-                    <input type="text" id="freeLokasi" placeholder="Nama Gedung / Kota" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold outline-none mt-1">
+                    <input type="text" id="freeLokasi" placeholder="Nama Gedung / Kota (Misal: Balairung UGM)" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold outline-none mt-1">
                 </div>
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 uppercase">Fee (Rp)</label>
@@ -374,7 +374,7 @@
         async function submitFreelanceJob() {
             const tanggal = document.getElementById('freeTanggal').value;
             const jam = document.getElementById('freeJam').value.trim() || '08:00 - Selesai';
-            const tipeJob = document.getElementById('freeTipe').value.trim() || 'Wisuda VividLens (Bronze)';
+            const tipeJob = document.getElementById('freeTipe').value.trim() || 'Foto Wisuda';
             const vendor = document.getElementById('freeVendor').value.trim();
             const lokasi = document.getElementById('freeLokasi').value.trim();
             const fee = document.getElementById('freeFee').value.trim();
@@ -426,8 +426,11 @@
                 document.getElementById('freeLokasi').value = '';
                 document.getElementById('freeFee').value = '';
                 
-                fetchFreelanceData();
-                switchMode('home');
+                setTimeout(async () => {
+                    await fetchFreelanceData();
+                    switchMode('home');
+                }, 1500);
+
             } catch (err) {
                 alert('Gagal menyimpan: ' + err.message);
             } finally {
@@ -444,6 +447,9 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('freeTanggal').value = today;
+
             fetchFreelanceData();
         });
     </script>
